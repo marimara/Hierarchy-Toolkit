@@ -1,138 +1,83 @@
-# \# Skill: unity-editor-test
+---
+name: unity-editor-test
+description: Create and validate targeted EditMode tests for Hierarchy Toolkit features, following the project validation harness.
+---
 
-# 
+# Skill: unity-editor-test
 
-# Use this Skill when adding or extending tests for Hierarchy Toolkit.
+Use this Skill when adding or extending tests for Hierarchy Toolkit.
 
-# 
+## Test Type
 
-# \## Test Type
+Prefer EditMode tests. Test behavior and state rather than exact rendered pixels.
 
-# 
+## Priorities
 
-# Prefer EditMode tests.
+When relevant, cover:
 
-# 
+- metadata persistence
+- Undo/Redo
+- multi-selection
+- cache invalidation
+- rule precedence
+- prefab safety
+- stable object identity
+- supported/unsupported object filtering
+- scene reload behavior
+- shared infrastructure regression
 
-# Test behavior and state rather than exact rendered pixels.
+## UI Features
 
-# 
+For visual features, test:
 
-# \## Priorities
+- data/state used by rendering
+- layout calculations
+- precedence rules
+- hierarchy relationship calculations
+- cache behavior
 
-# 
+Do not create tests that depend on exact pixel output, absolute screen coordinates, Unity skin visuals, or window size unless behavior specifically depends on it.
 
-# When relevant, cover:
+Manual visual verification may still be required. Do not claim it was completed unless actually observed.
 
-# 
+## Isolation
 
-# \- metadata persistence
+Tests must:
 
-# \- Undo/Redo
+- clean up created scenes/assets
+- avoid modifying unrelated project assets
+- avoid depending on project-specific gameplay systems
+- be deterministic
+- not rely on test execution order
 
-# \- multi-selection
+## Harness
 
-# \- cache invalidation
+Follow AGENTS.md and `Packages/com.meganeura.hierarchy-toolkit/Specs/HARNESS.md` (paths relative to the project root).
 
-# \- rule precedence
+- Compile through Unity MCP before running tests; import newly created files before requesting compilation.
+- Run targeted EditMode tests for the active feature and changed shared utilities, following Level 2.
+- When shared infrastructure changes, run only directly impacted regression tests under Level 3. A shared-file change alone does not justify the full suite.
+- Run the full Hierarchy Toolkit suite only when Level 4 applies.
+- Inspect package-related Console errors, exceptions, and repeated warnings after validation.
+- Report required manual verification and remaining blockers.
 
-# \- prefab safety
+## Efficient Validation
 
-# \- stable object identity
+- Group related implementation and test edits, then review them before compilation and validation.
+- After a correction, recompile changed code and rerun only tests affected by that correction or failure. Preserve valid results for unchanged behavior.
+- Do not repeat successful checks or reread unchanged files without a concrete reason.
+- Efficiency does not waive acceptance criteria or required harness checks.
 
-# \- supported/unsupported object filtering
+## Output
 
-# \- scene reload behavior
+Report concisely:
 
-# \- shared infrastructure regression
-
-# 
-
-# \## UI Features
-
-# 
-
-# For visual features, test:
-
-# 
-
-# \- data/state used by rendering
-
-# \- layout calculations
-
-# \- precedence rules
-
-# \- hierarchy relationship calculations
-
-# \- cache behavior
-
-# 
-
-# Do not create tests that depend on exact:
-
-# \- pixel output
-
-# \- absolute screen coordinates
-
-# \- Unity skin visuals
-
-# \- window size unless behavior specifically depends on it
-
-# 
-
-# Manual visual verification may still be required.
-
-# 
-
-# \## Isolation
-
-# 
-
-# Tests must:
-
-# 
-
-# \- clean up created scenes/assets
-
-# \- avoid modifying unrelated project assets
-
-# \- avoid depending on project-specific gameplay systems
-
-# \- be deterministic
-
-# \- not rely on test execution order
-
-# 
-
-# \## Harness
-
-# 
-
-# After targeted tests:
-
-# 
-
-# \- compile
-
-# \- inspect package-related Console errors
-
-# \- run the full Hierarchy Toolkit suite when shared infrastructure changed
-
-# 
-
-# \## Output
-
-# 
-
-# Report:
-
-# 
-
-# \- tests created/modified
-
-# \- tests executed
-
-# \- pass/fail result
-
-# \- coverage gaps requiring manual verification
-
+- tests created/modified
+- compilation result
+- targeted tests executed/result
+- impacted regression tests executed/result, if any
+- full suite: not required / executed
+- Console result
+- acceptance criteria verified automatically
+- coverage gaps requiring manual verification
+- blockers

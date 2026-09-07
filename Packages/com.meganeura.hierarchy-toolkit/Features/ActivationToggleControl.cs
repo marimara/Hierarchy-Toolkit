@@ -39,7 +39,8 @@ namespace Meganeura.HierarchyToolkit
             item.RowContainer.RegisterCallback<GeometryChangedEvent>(GeometryChanged);
             item.Name.RegisterCallback<GeometryChangedEvent>(GeometryChanged);
             item.RightCustomContainer.RegisterCallback<GeometryChangedEvent>(GeometryChanged);
-            item.NavigateIntoButton.RegisterCallback<GeometryChangedEvent>(GeometryChanged);
+            if (item.NavigateIntoButton != null)
+                item.NavigateIntoButton.RegisterCallback<GeometryChangedEvent>(GeometryChanged);
             Refresh();
         }
 
@@ -63,8 +64,14 @@ namespace Meganeura.HierarchyToolkit
                 if (nativeControl.resolvedStyle.display != DisplayStyle.None && nativeControl.worldBound.width > 0f)
                     right = Mathf.Min(right, row.WorldToLocal(nativeControl.worldBound).xMin);
             }
-            if (item.NavigateIntoButton.resolvedStyle.display != DisplayStyle.None)
-                right = Mathf.Min(right, row.WorldToLocal(item.NavigateIntoButton.worldBound).xMin);
+            if (item.NavigateIntoButton != null &&
+                item.NavigateIntoButton.resolvedStyle.display != DisplayStyle.None)
+            {
+                right = Mathf.Min(
+                    right,
+                    row.WorldToLocal(item.NavigateIntoButton.worldBound).xMin
+                );
+            }
             var layout = new HierarchyRowLayout(row.contentRect, labelEnd, right);
             var rect = default(Rect);
             var visible = supported && layout.TryReserveRight(18f, out rect);
@@ -82,7 +89,8 @@ namespace Meganeura.HierarchyToolkit
             item.RowContainer.UnregisterCallback<GeometryChangedEvent>(GeometryChanged);
             item.Name.UnregisterCallback<GeometryChangedEvent>(GeometryChanged);
             item.RightCustomContainer.UnregisterCallback<GeometryChangedEvent>(GeometryChanged);
-            item.NavigateIntoButton.UnregisterCallback<GeometryChangedEvent>(GeometryChanged);
+            if (item.NavigateIntoButton != null)
+                item.NavigateIntoButton.UnregisterCallback<GeometryChangedEvent>(GeometryChanged);
             toggle.UnregisterValueChangedCallback(OnChanged);
             target = null;
             minimapControl.RemoveFromHierarchy();
