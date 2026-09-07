@@ -199,5 +199,60 @@ namespace Meganeura.HierarchyToolkit.Tests
             }
             finally { host.Close(); }
         }
+
+        [Test]
+        public void HeaderDragMovesWindowWithoutChangingSelectionOrComponentAndReleasesCapture()
+        {
+            var component = target.AddComponent<BoxCollider>();
+            Open(component);
+            var window = ComponentPopupInspector.Current;
+            var editor = window.Inspector;
+            var previousSelection = Selection.objects;
+            var area = EditorGUIUtility.GetMainWindowPosition();
+            window.position = new Rect(area.center - new Vector2(180, 160), new Vector2(360, 320));
+            var original = window.position;
+            var header = window.rootVisualElement.Q<Label>("component-popup-drag-header");
+            var local = new Vector2(10, 10);
+            var delta = new Vector2(20, 15);
+            using (var evt = PointerDownEvent.GetPooled(new Event { type = EventType.MouseDown, button = 0, mousePosition = local }))
+                header.SendEvent(evt);
+            Assert.That(header.HasPointerCapture(PointerId.mousePointerId), Is.True);
+            using (var evt = PointerMoveEvent.GetPooled(new Event { type = EventType.MouseDrag, button = 0, mousePosition = local + delta }))
+                header.SendEvent(evt);
+            Assert.That(window.position.position, Is.EqualTo(original.position + delta));
+            Assert.That(window.position.size, Is.EqualTo(original.size));
+            Assert.That(window.Inspector, Is.SameAs(editor));
+            Assert.That(component.center, Is.EqualTo(Vector3.zero));
+            Assert.That(Selection.objects, Is.EqualTo(previousSelection));
+            using (var evt = PointerUpEvent.GetPooled(new Event { type = EventType.MouseUp, button = 0, mousePosition = local }))
+                header.SendEvent(evt);
+            Assert.That(header.HasPointerCapture(PointerId.mousePointerId), Is.False);
+            using (var evt = PointerMoveEvent.GetPooled(new Event { type = EventType.MouseMove, mousePosition = local + delta }))
+                header.SendEvent(evt);
+            Assert.That(window.position.position, Is.EqualTo(original.position + delta));
+        }
+
+        [Test]
+        public void InspectorInputDoesNotStartWindowDragAndClosingReleasesActiveDrag()
+        {
+            Open(target.AddComponent<BoxCollider>());
+            var window = ComponentPopupInspector.Current;
+            var original = window.position;
+            var body = window.rootVisualElement.Q<UnityEditor.UIElements.InspectorElement>();
+            using (var evt = PointerDownEvent.GetPooled(new Event { type = EventType.MouseDown, button = 0 }))
+                body.SendEvent(evt);
+            using (var evt = PointerMoveEvent.GetPooled(new Event { type = EventType.MouseDrag, button = 0, mousePosition = Vector2.one * 20 }))
+                body.SendEvent(evt);
+            Assert.That(window.position, Is.EqualTo(original));
+            var header = window.rootVisualElement.Q<Label>("component-popup-drag-header");
+            Assert.That(header.HasPointerCapture(PointerId.mousePointerId), Is.False);
+            using (var evt = PointerDownEvent.GetPooled(new Event { type = EventType.MouseDown, button = 0 }))
+                header.SendEvent(evt);
+            var editor = window.Inspector;
+            window.Close();
+            Assert.That(header.HasPointerCapture(PointerId.mousePointerId), Is.False);
+            Assert.That(editor == null, Is.True);
+            Assert.That(ComponentPopupInspector.Current == null, Is.True);
+        }
     }
 }

@@ -14,6 +14,10 @@ namespace Meganeura.HierarchyToolkit
         [NonSerialized] private Component component;
         [NonSerialized] private UnityEditor.Editor inspector;
         private VisualElement body;
+        private Label dragHeader;
+        private int dragPointer = -1;
+        private Vector2 dragStart;
+        private Rect dragWindow;
         internal static ComponentPopupInspector Current => current;
         internal UnityEditor.Editor Inspector => inspector;
 
@@ -70,7 +74,12 @@ namespace Meganeura.HierarchyToolkit
         {
             var header = new VisualElement();
             header.style.flexDirection = FlexDirection.Row;
-            var label = new Label(component.GetType().Name);
+            var label = new Label(component.GetType().Name) { name = "component-popup-drag-header" };
+            dragHeader = label;
+            label.RegisterCallback<PointerDownEvent>(BeginDrag);
+            label.RegisterCallback<PointerMoveEvent>(Drag);
+            label.RegisterCallback<PointerUpEvent>(EndDrag);
+            label.RegisterCallback<PointerCaptureOutEvent>(CancelDrag);
             label.style.unityFontStyleAndWeight = FontStyle.Bold;
             label.style.flexGrow = 1;
             header.Add(label);
@@ -84,6 +93,43 @@ namespace Meganeura.HierarchyToolkit
             body = new InspectorElement(inspector);
             scroll.Add(body);
             body.RegisterCallback<GeometryChangedEvent>(ResizeToInspector);
+        }
+
+        private void BeginDrag(PointerDownEvent evt)
+        {
+            if (evt.button != 0 || dragPointer != -1) return;
+            dragPointer = evt.pointerId;
+            dragWindow = position;
+            dragStart = position.position + (Vector2)evt.position;
+            dragHeader.CapturePointer(dragPointer);
+            evt.StopPropagation();
+        }
+
+        private void Drag(PointerMoveEvent evt)
+        {
+            if (evt.pointerId != dragPointer) return;
+            // Panel coordinates move with the window; compare screen positions to avoid feedback.
+            var screenPosition = position.position + (Vector2)evt.position;
+            var rect = dragWindow;
+            rect.position += screenPosition - dragStart;
+            position = FitToEditor(rect);
+            evt.StopPropagation();
+        }
+
+        private void EndDrag(PointerUpEvent evt)
+        {
+            if (evt.pointerId != dragPointer || evt.button != 0) return;
+            ReleaseDrag();
+            evt.StopPropagation();
+        }
+
+        private void CancelDrag(PointerCaptureOutEvent evt) => dragPointer = -1;
+
+        private void ReleaseDrag()
+        {
+            var pointer = dragPointer;
+            dragPointer = -1;
+            if (pointer != -1) dragHeader?.ReleasePointer(pointer);
         }
 
         private void ResizeToInspector(GeometryChangedEvent evt)
@@ -119,6 +165,15 @@ namespace Meganeura.HierarchyToolkit
 
         private void OnDisable()
         {
+            ReleaseDrag();
+            if (dragHeader != null)
+            {
+                dragHeader.UnregisterCallback<PointerDownEvent>(BeginDrag);
+                dragHeader.UnregisterCallback<PointerMoveEvent>(Drag);
+                dragHeader.UnregisterCallback<PointerUpEvent>(EndDrag);
+                dragHeader.UnregisterCallback<PointerCaptureOutEvent>(CancelDrag);
+                dragHeader = null;
+            }
             EditorApplication.delayCall -= ValidateTarget;
             EditorApplication.hierarchyChanged -= ValidateTarget;
             ObjectChangeEvents.changesPublished -= ObjectsChanged;
