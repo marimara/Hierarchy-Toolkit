@@ -1,0 +1,5 @@
+{
+  "name": "Meganeura.HierarchyToolkit.Editor",
+  "rootNamespace": "Meganeura.HierarchyToolkit",
+  "includePlatforms": ["Editor"]
+}

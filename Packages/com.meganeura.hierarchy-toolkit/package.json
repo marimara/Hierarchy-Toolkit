@@ -1,0 +1,7 @@
+{
+  "name": "com.meganeura.hierarchy-toolkit",
+  "version": "0.1.0",
+  "displayName": "Hierarchy Toolkit",
+  "description": "Editor-only foundation for extensible Hierarchy drawing.",
+  "author": { "name": "Meganeura" }
+}

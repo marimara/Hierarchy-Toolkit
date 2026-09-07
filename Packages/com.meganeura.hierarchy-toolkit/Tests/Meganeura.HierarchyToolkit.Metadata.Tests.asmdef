@@ -1,0 +1,7 @@
+{
+  "name": "Meganeura.HierarchyToolkit.Metadata.Tests",
+  "rootNamespace": "Meganeura.HierarchyToolkit.Tests",
+  "references": ["Meganeura.HierarchyToolkit.Editor"],
+  "includePlatforms": ["Editor"],
+  "optionalUnityReferences": ["TestAssemblies"]
+}
