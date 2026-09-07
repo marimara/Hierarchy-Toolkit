@@ -657,6 +657,19 @@ Use Unity MCP primarily for:
 
 ---
 
+## Full Suite Policy
+
+Run targeted tests first.
+
+Run the full Hierarchy Toolkit suite only when shared infrastructure changed.
+
+If the full suite reveals a failure unrelated to the current task:
+
+1. rerun that failing test once in isolation
+2. if the failure reproduces and the changed files are unrelated, report it as pre-existing
+3. do not investigate or fix it unless explicitly requested
+4. stop further unrelated debugging
+
 ## Important
 
 Before implementing any feature, prioritize in this order:

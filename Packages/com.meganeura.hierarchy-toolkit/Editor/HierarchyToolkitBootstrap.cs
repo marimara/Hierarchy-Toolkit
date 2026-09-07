@@ -11,7 +11,8 @@ namespace Meganeura.HierarchyToolkit
         internal static readonly ZebraStripingFeature ZebraStriping = new ZebraStripingFeature(ManualColors.Cache);
         internal static readonly HierarchyLinesFeature HierarchyLines = new HierarchyLinesFeature();
         internal static readonly SeparatorFeature Separators = new SeparatorFeature();
-        private static readonly VisualHierarchyBinding Visuals = new VisualHierarchyBinding(ZebraStriping, HierarchyLines, ManualColors.Cache, Separators);
+        internal static readonly ActivationToggleFeature Activation = new ActivationToggleFeature();
+        private static readonly VisualHierarchyBinding Visuals = new VisualHierarchyBinding(ZebraStriping, HierarchyLines, ManualColors.Cache, Separators, Activation);
 
         static HierarchyToolkitBootstrap()
         {
@@ -21,6 +22,7 @@ namespace Meganeura.HierarchyToolkit
             HierarchyDrawer.Register(ManualColors);
             HierarchyDrawer.Register(HierarchyLines);
             HierarchyDrawer.Register(ManualIcons);
+            HierarchyDrawer.Register(Activation);
             AssemblyReloadEvents.beforeAssemblyReload += Shutdown;
             EditorApplication.quitting += Shutdown;
         }
