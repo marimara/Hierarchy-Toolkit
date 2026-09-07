@@ -7,6 +7,7 @@ namespace Meganeura.HierarchyToolkit
     internal sealed class ManualColorFeature : IHierarchyFeature, IDisposable
     {
         private readonly ManualColorCache cache = new ManualColorCache();
+        internal ManualColorCache Cache => cache;
         private readonly ManualColorHierarchyBinding hierarchyBinding;
 
         internal ManualColorFeature()
