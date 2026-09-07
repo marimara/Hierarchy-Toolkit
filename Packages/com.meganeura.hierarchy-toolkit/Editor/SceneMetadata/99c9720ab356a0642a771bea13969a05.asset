@@ -19,8 +19,37 @@ MonoBehaviour:
     customIconReference: asset:0000000000000000f000000000000000:10907
     hasColorOverride: 1
     hasIconOverride: 1
+    separator:
+      enabled: 0
+      displayText: 
+      hasBackgroundColor: 0
+      backgroundColor: {r: 0, g: 0, b: 0, a: 0}
+      hasTextColor: 0
+      textColor: {r: 0, g: 0, b: 0, a: 0}
+      bold: 0
   - objectId: GlobalObjectId_V1-2-99c9720ab356a0642a771bea13969a05-2097079849-0
     customColor: {r: 0, g: 1, b: 0.038495302, a: 1}
     customIconReference: asset:0000000000000000f000000000000000:10907
     hasColorOverride: 1
     hasIconOverride: 1
+    separator:
+      enabled: 0
+      displayText: 
+      hasBackgroundColor: 0
+      backgroundColor: {r: 0, g: 0, b: 0, a: 0}
+      hasTextColor: 0
+      textColor: {r: 0, g: 0, b: 0, a: 0}
+      bold: 0
+  - objectId: GlobalObjectId_V1-2-99c9720ab356a0642a771bea13969a05-1684239591-0
+    customColor: {r: 0, g: 0, b: 0, a: 0}
+    customIconReference: 
+    hasColorOverride: 0
+    hasIconOverride: 0
+    separator:
+      enabled: 1
+      displayText: ---------MANAGERS----------
+      hasBackgroundColor: 1
+      backgroundColor: {r: 0.27044016, g: 0, b: 0, a: 0.8392157}
+      hasTextColor: 1
+      textColor: {r: 0, g: 0, b: 0, a: 1}
+      bold: 0

@@ -84,8 +84,9 @@ namespace Meganeura.HierarchyToolkit.Tests
             var zebraIndex = Array.IndexOf(features, zebra);
             var linesIndex = Array.IndexOf(features, lines);
             Assert.That(zebraIndex, Is.GreaterThanOrEqualTo(0));
-            Assert.That(features[zebraIndex + 1], Is.TypeOf<ManualColorFeature>());
-            Assert.That(linesIndex, Is.EqualTo(zebraIndex + 2));
+            Assert.That(features[zebraIndex + 1], Is.TypeOf<SeparatorFeature>());
+            Assert.That(features[zebraIndex + 2], Is.TypeOf<ManualColorFeature>());
+            Assert.That(linesIndex, Is.EqualTo(zebraIndex + 3));
             Assert.That(features[linesIndex + 1], Is.TypeOf<ManualIconFeature>());
             HierarchyDrawer.Register(zebra);
             HierarchyDrawer.Register(lines);

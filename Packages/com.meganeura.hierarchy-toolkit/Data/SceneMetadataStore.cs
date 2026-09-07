@@ -138,6 +138,28 @@ namespace Meganeura.HierarchyToolkit
             Persist();
         }
 
+        /// <summary>Assigns header options with Undo and persistence. A disabled style clears only header data.</summary>
+        public void SetSeparator(GameObject gameObject, SeparatorStyle style)
+        {
+            if (!style.Enabled) { ClearSeparator(gameObject); return; }
+            var id = RequireId(gameObject);
+            Index.TryGetValue(id, out var metadata);
+            if (metadata != null && metadata.Separator.Equals(style)) return;
+            Undo.RegisterCompleteObjectUndo(this, "Set Hierarchy Separator");
+            (metadata ?? Add(id)).SetSeparator(style);
+            Persist();
+        }
+
+        /// <summary>Clears only header data with Undo, preserving manual colors and icons.</summary>
+        public void ClearSeparator(GameObject gameObject)
+        {
+            if (!TryGetMetadata(gameObject, out var metadata) || !metadata.Separator.Enabled) return;
+            Undo.RegisterCompleteObjectUndo(this, "Clear Hierarchy Separator");
+            metadata.SetSeparator(default);
+            RemoveIfEmpty(metadata);
+            Persist();
+        }
+
         /// <summary>Removes all metadata for an object with Undo. Returns whether an entry existed.</summary>
         public bool RemoveMetadata(GameObject gameObject)
         {

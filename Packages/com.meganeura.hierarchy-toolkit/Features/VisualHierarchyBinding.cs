@@ -17,12 +17,14 @@ namespace Meganeura.HierarchyToolkit
         private readonly ZebraStripingFeature zebra;
         private readonly HierarchyLinesFeature lines;
         private readonly ManualColorCache colors;
+        private readonly SeparatorFeature separators;
 
-        internal VisualHierarchyBinding(ZebraStripingFeature zebra, HierarchyLinesFeature lines, ManualColorCache colors)
+        internal VisualHierarchyBinding(ZebraStripingFeature zebra, HierarchyLinesFeature lines, ManualColorCache colors, SeparatorFeature separators)
         {
             this.zebra = zebra;
             this.lines = lines;
             this.colors = colors;
+            this.separators = separators;
             HierarchyWindow.BindViewItem += BindItem;
             HierarchyWindow.UnbindViewItem += UnbindItem;
             HierarchyWindow.UnbindView += UnbindView;
@@ -32,6 +34,7 @@ namespace Meganeura.HierarchyToolkit
             colors.Changed += Refresh;
             zebra.Changed += Refresh;
             lines.Changed += Refresh;
+            separators.Changed += Refresh;
             EditorApplication.delayCall += BindExistingRows;
         }
 
@@ -48,7 +51,7 @@ namespace Meganeura.HierarchyToolkit
             if (!branches.TryGetValue(view, out var cache))
                 branches.Add(view, cache = new HierarchyLinesFeature.BranchCache());
             cache.Invalidate();
-            rows.Add(item, new Decoration(item, id, zebra, lines, cache));
+            rows.Add(item, new Decoration(item, id, zebra, lines, cache, colors, separators));
             // Expansion/reordering can change the parity of already realized rows too.
             Refresh();
         }
@@ -73,7 +76,7 @@ namespace Meganeura.HierarchyToolkit
 
         private void Refresh()
         {
-            foreach (var row in rows.Values) row.MarkDirtyRepaint();
+            foreach (var row in rows.Values) row.Refresh();
             EditorApplication.RepaintHierarchyWindow();
         }
 
@@ -89,6 +92,7 @@ namespace Meganeura.HierarchyToolkit
             colors.Changed -= Refresh;
             zebra.Changed -= Refresh;
             lines.Changed -= Refresh;
+            separators.Changed -= Refresh;
             foreach (var row in rows.Values) row.Dispose();
             rows.Clear();
             branches.Clear();
@@ -101,15 +105,21 @@ namespace Meganeura.HierarchyToolkit
             private readonly ZebraStripingFeature zebra;
             private readonly HierarchyLinesFeature lines;
             private readonly HierarchyLinesFeature.BranchCache branches;
+            private readonly ManualColorCache colors;
+            private readonly SeparatorFeature separators;
+            private readonly SeparatorLabel label;
 
             internal Decoration(HierarchyViewItem item, EntityId id, ZebraStripingFeature zebra, HierarchyLinesFeature lines,
-                HierarchyLinesFeature.BranchCache branches)
+                HierarchyLinesFeature.BranchCache branches, ManualColorCache colors, SeparatorFeature separators)
             {
                 this.item = item;
                 this.id = id;
                 this.zebra = zebra;
                 this.lines = lines;
                 this.branches = branches;
+                this.colors = colors;
+                this.separators = separators;
+                label = new SeparatorLabel(item.Name, item.Icon);
                 name = "hierarchy-toolkit-row-visuals";
                 pickingMode = PickingMode.Ignore;
                 style.position = Position.Absolute;
@@ -124,6 +134,15 @@ namespace Meganeura.HierarchyToolkit
 
             private void GeometryChanged(GeometryChangedEvent evt) => MarkDirtyRepaint();
 
+            internal void Refresh()
+            {
+                separators.TryGet(id, out var style);
+                // Store/scene notifications can arrive after a native node was removed but
+                // before its row was unbound. Selection's entity lookup tolerates that interval.
+                label.Apply(style, Selection.Contains(id));
+                MarkDirtyRepaint();
+            }
+
             private void Paint(MeshGenerationContext context)
             {
                 var model = item.View?.ViewModel;
@@ -131,8 +150,15 @@ namespace Meganeura.HierarchyToolkit
                 var node = item.Node;
                 var index = model.IndexOf(node);
                 if (index < 0) return;
-                zebra.Draw(context.painter2D, contentRect, id, index,
-                    Selection.Contains(id) || item.View.IsSelected(node));
+                var selected = Selection.Contains(id) || item.View.IsSelected(node);
+                if (separators.TryGet(id, out var separator))
+                {
+                    // Header replaces zebra. Manual color lives on the native row behind this decoration.
+                    if (SeparatorFeature.ShouldDrawBackground(selected, colors.TryGetColor(id, out _)))
+                        DrawBackground(context.painter2D, contentRect, SeparatorFeature.Background(separator, EditorGUIUtility.isProSkin));
+                    return; // No hierarchy lines through headers, including their indentation.
+                }
+                zebra.Draw(context.painter2D, contentRect, id, index, selected);
                 var depth = model.GetDepth(node);
                 if (!lines.Enabled || item.View.Filtering) return;
                 if (branches.Dirty || branches.Count != model.Count)
@@ -149,8 +175,22 @@ namespace Meganeura.HierarchyToolkit
                     gutterEnd, contentStart, toggle, item.View.Filtering);
             }
 
+            private static void DrawBackground(Painter2D painter, Rect rect, Color color)
+            {
+                if (rect.width <= 0f || rect.height <= 0f || color.a <= 0f) return;
+                painter.fillColor = color;
+                painter.BeginPath();
+                painter.MoveTo(new Vector2(rect.xMin, rect.yMin));
+                painter.LineTo(new Vector2(rect.xMax, rect.yMin));
+                painter.LineTo(new Vector2(rect.xMax, rect.yMax));
+                painter.LineTo(new Vector2(rect.xMin, rect.yMax));
+                painter.ClosePath();
+                painter.Fill();
+            }
+
             public void Dispose()
             {
+                label.Dispose();
                 generateVisualContent -= Paint;
                 item.UnregisterCallback<GeometryChangedEvent>(GeometryChanged);
                 item.Toggle.UnregisterCallback<GeometryChangedEvent>(GeometryChanged);
