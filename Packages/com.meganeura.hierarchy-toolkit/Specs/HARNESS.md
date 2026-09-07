@@ -2,7 +2,11 @@
 
 # 
 
-# The validation harness defines how Hierarchy Toolkit changes are verified.
+# The validation harness defines the minimum verification required for Hierarchy Toolkit changes.
+
+# 
+
+# The goal is to validate changes reliably without running unnecessary tests.
 
 # 
 
@@ -10,7 +14,7 @@
 
 # 
 
-# Compile the Unity project through Unity MCP.
+# Always compile the Unity project through Unity MCP.
 
 # 
 
@@ -26,7 +30,15 @@
 
 # 
 
-# Run EditMode tests directly related to the active feature or bug.
+# Always run only the EditMode tests directly related to:
+
+# 
+
+# \- the active feature
+
+# \- changed shared utilities directly used by that feature
+
+# \- regressions explicitly associated with the change
 
 # 
 
@@ -34,41 +46,101 @@
 
 # 
 
-# \- metadata feature → metadata tests
-
-# \- separator feature → separator tests
-
 # \- activation toggle → activation tests
 
-# 
+# \- separator → separator tests
 
-# \## Level 3 - Full Toolkit Suite
+# \- metadata change → metadata tests
 
-# 
-
-# Run the complete Hierarchy Toolkit EditMode test suite when:
+# \- layout change used by activation toggle → activation + layout tests
 
 # 
 
-# \- shared infrastructure changed
+# Do not automatically run unrelated feature tests.
+
+# 
+
+# \## Level 3 - Impact-Based Regression Tests
+
+# 
+
+# If shared infrastructure changed, identify only the features directly affected by that shared code.
+
+# 
+
+# Run targeted regression tests for those direct dependents.
+
+# 
+
+# Examples:
+
+# 
+
+# \- centralized row layout changed
+
+# &#x20; → test features using right-side layout reservations
+
+# 
+
+# \- metadata store changed
+
+# &#x20; → test metadata-dependent features
+
+# 
 
 # \- hierarchy binding changed
 
-# \- metadata storage changed
-
-# \- cache infrastructure changed
-
-# \- centralized layout changed
-
-# \- feature registration/bootstrap changed
+# &#x20; → test features bound through that path
 
 # 
 
-# \## Level 4 - Console Validation
+# Do not run the complete Toolkit suite merely because a shared file was touched.
 
 # 
 
-# Inspect the Unity Console after compilation and tests.
+# \## Level 4 - Full Toolkit Suite
+
+# 
+
+# The full Hierarchy Toolkit EditMode suite is NOT part of normal feature implementation.
+
+# 
+
+# Run the full suite only when:
+
+# 
+
+# \- explicitly requested
+
+# \- preparing a release or milestone
+
+# \- performing a dedicated regression pass
+
+# \- a high-risk architectural change affects most Toolkit features
+
+# \- targeted regression tests reveal evidence of broader breakage
+
+# 
+
+# If the full suite reveals an unrelated failure:
+
+# 
+
+# 1\. rerun that failing test once in isolation
+
+# 2\. if it reproduces and is unrelated to the current change, report it
+
+# 3\. do not investigate or fix it unless explicitly requested
+
+# 4\. stop unrelated debugging
+
+# 
+
+# \## Level 5 - Console Validation
+
+# 
+
+# Inspect the Unity Console after compilation and targeted tests.
 
 # 
 
@@ -86,11 +158,11 @@
 
 # 
 
-# Do not attempt to fix unrelated project issues.
+# Do not investigate unrelated project issues.
 
 # 
 
-# \## Level 5 - Manual Verification
+# \## Level 6 - Manual Verification
 
 # 
 
@@ -104,19 +176,21 @@
 
 # \- visual alignment
 
+# \- mouse interaction
+
 # \- text readability
 
-# \- drag/reorder interaction
+# \- drag/reorder
 
 # \- popup placement
 
 # \- narrow Hierarchy behavior
 
-# \- visual coexistence with existing features
+# \- coexistence with existing visual features
 
 # 
 
-# Do not claim manual verification was completed unless the behavior was actually observed.
+# Do not claim manual verification was completed unless it was actually observed.
 
 # 
 
@@ -124,11 +198,31 @@
 
 # 
 
-# A task is complete when all applicable levels pass.
+# Normal feature work requires:
 
 # 
 
-# The final report must state:
+# 1\. compilation
+
+# 2\. targeted tests
+
+# 3\. impact-based regression tests only when justified
+
+# 4\. Console validation
+
+# 5\. manual verification when applicable
+
+# 
+
+# The full Toolkit suite is optional unless explicitly required by Level 4.
+
+# 
+
+# \## Final Report
+
+# 
+
+# State only:
 
 # 
 
@@ -136,11 +230,13 @@
 
 # \- targeted tests executed
 
-# \- full suite executed or not required
+# \- impact-based regression tests executed, if any
+
+# \- full suite: not required / executed
 
 # \- Console result
 
 # \- manual verification required or completed
 
-# \- remaining blockers
+# \- blockers
 

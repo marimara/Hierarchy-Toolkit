@@ -11,12 +11,17 @@ namespace Meganeura.HierarchyToolkit
         private readonly ActivationToggleFeature feature;
         private GameObject target;
         private readonly Toggle toggle;
+        private readonly ComponentMinimapFeature minimap;
+        private readonly ComponentMinimapControl minimapControl;
 
-        internal ActivationToggleControl(HierarchyViewItem item, GameObject target, ActivationToggleFeature feature)
+        internal ActivationToggleControl(HierarchyViewItem item, GameObject target, ActivationToggleFeature feature, ComponentMinimapFeature minimap)
         {
             this.item = item;
             this.target = target;
             this.feature = feature;
+            this.minimap = minimap;
+            minimapControl = new ComponentMinimapControl();
+            item.RowContainer.Add(minimapControl);
             name = "hierarchy-toolkit-activation";
             style.position = Position.Absolute;
             style.justifyContent = Justify.Center;
@@ -52,15 +57,20 @@ namespace Meganeura.HierarchyToolkit
             var row = item.RowContainer;
             var labelEnd = row.WorldToLocal(item.Name.worldBound).xMax;
             var right = row.WorldToLocal(item.RightCustomContainer.worldBound).xMax;
+            for (var i = 0; i < item.RightCustomContainer.childCount; ++i)
+            {
+                var nativeControl = item.RightCustomContainer[i];
+                if (nativeControl.resolvedStyle.display != DisplayStyle.None && nativeControl.worldBound.width > 0f)
+                    right = Mathf.Min(right, row.WorldToLocal(nativeControl.worldBound).xMin);
+            }
             if (item.NavigateIntoButton.resolvedStyle.display != DisplayStyle.None)
                 right = Mathf.Min(right, row.WorldToLocal(item.NavigateIntoButton.worldBound).xMin);
             var layout = new HierarchyRowLayout(row.contentRect, labelEnd, right);
-            var visible = supported && layout.TryReserveRight(18f, out _);
+            var rect = default(Rect);
+            var visible = supported && layout.TryReserveRight(18f, out rect);
             style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
+            minimapControl.Refresh(supported && !visible ? Array.Empty<ComponentMinimapCache.Icon>() : minimap.GetIcons(target), ref layout);
             if (!visible) return;
-            // A fresh layout keeps reservation independent from previous geometry events.
-            layout = new HierarchyRowLayout(row.contentRect, labelEnd, right);
-            layout.TryReserveRight(18f, out var rect);
             style.left = rect.x;
             style.top = rect.y;
             style.width = rect.width;
@@ -75,6 +85,7 @@ namespace Meganeura.HierarchyToolkit
             item.NavigateIntoButton.UnregisterCallback<GeometryChangedEvent>(GeometryChanged);
             toggle.UnregisterValueChangedCallback(OnChanged);
             target = null;
+            minimapControl.RemoveFromHierarchy();
             RemoveFromHierarchy();
         }
     }

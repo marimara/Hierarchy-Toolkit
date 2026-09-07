@@ -1,0 +1,70 @@
+using System;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.UIElements;
+
+namespace Meganeura.HierarchyToolkit
+{
+    internal sealed class ComponentMinimapControl : VisualElement
+    {
+        internal const float IconSize = 14f;
+        internal const float Spacing = 2f;
+        private readonly List<Image> images = new();
+        private ComponentMinimapCache.Icon[] snapshot;
+
+        internal ComponentMinimapControl()
+        {
+            name = "hierarchy-toolkit-component-minimap";
+            pickingMode = PickingMode.Ignore;
+            style.position = Position.Absolute;
+        }
+
+        internal static int Reserve(ref HierarchyRowLayout layout, int count, out Rect bounds)
+        {
+            bounds = default;
+            if (count <= 0) return 0;
+            // Probe a copy to find the largest prefix that fits, then reserve one compact strip.
+            var probe = layout;
+            var visible = 0;
+            while (visible < count && probe.TryReserveRight(IconSize, out _)) ++visible;
+            if (visible == 0) return 0;
+            return layout.TryReserveRight(visible * (IconSize + Spacing) - Spacing, out bounds) ? visible : 0;
+        }
+
+        internal void Refresh(ComponentMinimapCache.Icon[] icons, ref HierarchyRowLayout layout)
+        {
+            if (!ReferenceEquals(snapshot, icons))
+            {
+                snapshot = icons;
+                while (images.Count < icons.Length)
+                {
+                    // Picking is needed for native tooltips. No click handlers or focus: row input bubbles normally.
+                    var image = new Image { pickingMode = PickingMode.Position, focusable = false, scaleMode = ScaleMode.ScaleToFit };
+                    image.style.position = Position.Absolute;
+                    images.Add(image);
+                    Add(image);
+                }
+                for (var i = 0; i < images.Count; ++i)
+                {
+                    images[i].image = i < icons.Length ? icons[i].Texture : null;
+                    images[i].tooltip = i < icons.Length ? icons[i].Name : string.Empty;
+                }
+            }
+            var visible = Reserve(ref layout, icons.Length, out var bounds);
+            style.display = visible > 0 ? DisplayStyle.Flex : DisplayStyle.None;
+            style.left = bounds.x;
+            style.top = bounds.y;
+            style.width = bounds.width;
+            style.height = bounds.height;
+            for (var i = 0; i < images.Count; ++i)
+            {
+                var image = images[i];
+                image.style.display = i < visible ? DisplayStyle.Flex : DisplayStyle.None;
+                image.style.left = i * (IconSize + Spacing);
+                image.style.top = Mathf.Max(0f, (bounds.height - IconSize) * 0.5f);
+                image.style.width = IconSize;
+                image.style.height = Mathf.Min(IconSize, bounds.height);
+            }
+        }
+    }
+}

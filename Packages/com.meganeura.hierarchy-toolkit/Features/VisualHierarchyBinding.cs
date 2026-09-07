@@ -19,14 +19,16 @@ namespace Meganeura.HierarchyToolkit
         private readonly ManualColorCache colors;
         private readonly SeparatorFeature separators;
         private readonly ActivationToggleFeature activation;
+        private readonly ComponentMinimapFeature minimap;
 
-        internal VisualHierarchyBinding(ZebraStripingFeature zebra, HierarchyLinesFeature lines, ManualColorCache colors, SeparatorFeature separators, ActivationToggleFeature activation)
+        internal VisualHierarchyBinding(ZebraStripingFeature zebra, HierarchyLinesFeature lines, ManualColorCache colors, SeparatorFeature separators, ActivationToggleFeature activation, ComponentMinimapFeature minimap)
         {
             this.zebra = zebra;
             this.lines = lines;
             this.colors = colors;
             this.separators = separators;
             this.activation = activation;
+            this.minimap = minimap;
             HierarchyWindow.BindViewItem += BindItem;
             HierarchyWindow.UnbindViewItem += UnbindItem;
             HierarchyWindow.UnbindView += UnbindView;
@@ -38,6 +40,7 @@ namespace Meganeura.HierarchyToolkit
             lines.Changed += Refresh;
             separators.Changed += Refresh;
             activation.Changed += RefreshActivation;
+            minimap.Changed += RefreshActivation;
             ObjectChangeEvents.changesPublished += ObjectsChanged;
             EditorApplication.playModeStateChanged += PlayModeChanged;
             EditorApplication.delayCall += BindExistingRows;
@@ -56,7 +59,7 @@ namespace Meganeura.HierarchyToolkit
             if (!branches.TryGetValue(view, out var cache))
                 branches.Add(view, cache = new HierarchyLinesFeature.BranchCache());
             cache.Invalidate();
-            rows.Add(item, new Decoration(item, id, zebra, lines, cache, colors, separators, activation));
+            rows.Add(item, new Decoration(item, id, zebra, lines, cache, colors, separators, activation, minimap));
             // Expansion/reordering can change the parity of already realized rows too.
             Refresh();
         }
@@ -106,6 +109,7 @@ namespace Meganeura.HierarchyToolkit
             lines.Changed -= Refresh;
             separators.Changed -= Refresh;
             activation.Changed -= RefreshActivation;
+            minimap.Changed -= RefreshActivation;
             ObjectChangeEvents.changesPublished -= ObjectsChanged;
             EditorApplication.playModeStateChanged -= PlayModeChanged;
             foreach (var row in rows.Values) row.Dispose();
@@ -126,7 +130,7 @@ namespace Meganeura.HierarchyToolkit
             private readonly ActivationToggleControl activationControl;
 
             internal Decoration(HierarchyViewItem item, EntityId id, ZebraStripingFeature zebra, HierarchyLinesFeature lines,
-                HierarchyLinesFeature.BranchCache branches, ManualColorCache colors, SeparatorFeature separators, ActivationToggleFeature activation)
+                HierarchyLinesFeature.BranchCache branches, ManualColorCache colors, SeparatorFeature separators, ActivationToggleFeature activation, ComponentMinimapFeature minimap)
             {
                 this.item = item;
                 this.id = id;
@@ -142,7 +146,7 @@ namespace Meganeura.HierarchyToolkit
                 style.left = style.right = style.top = style.bottom = 0f;
                 item.RowContainer.Insert(0, this);
                 if (item.Handler is HierarchyGameObjectHandler)
-                    activationControl = new ActivationToggleControl(item, EditorUtility.EntityIdToObject(id) as GameObject, activation);
+                    activationControl = new ActivationToggleControl(item, EditorUtility.EntityIdToObject(id) as GameObject, activation, minimap);
                 generateVisualContent += Paint;
                 item.RegisterCallback<GeometryChangedEvent>(GeometryChanged);
                 item.Toggle.RegisterCallback<GeometryChangedEvent>(GeometryChanged);

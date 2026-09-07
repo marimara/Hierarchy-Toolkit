@@ -2,49 +2,25 @@
 
 Unity Editor-only internal package for improving the Unity Hierarchy workflow for programmers, designers, and artists.
 
-The goal is not merely to reproduce vHierarchy-style functionality, but to build the best possible internal Hierarchy workflow for our team.
+Package root:
 
----
-
-## Goals
-
-Provide:
-
-- GameObject colors
-- custom icons
-- automatic icons
-- automatic colors
-- hierarchy separators
-- hierarchy lines
-- zebra striping
-- activation toggle
-- component minimap
-- component popup inspector
-- favorites / bookmarks
-- scene navigation
-- hierarchy shortcuts
-- default parent
-- hierarchy organization presets
-- validation warnings
-- configurable rules
-- artist-friendly settings
-- fast navigation for large scenes
-
-Additional features may be introduced when they clearly improve the team's Unity workflow.
-
----
-
-## Architecture
+Packages/com.meganeura.hierarchy-toolkit/
 
 Namespace:
 
 Meganeura.HierarchyToolkit
 
-Package root:
+Feature behavior and roadmap are defined in:
 
-Packages/com.meganeura.hierarchy-toolkit/
+Packages/com.meganeura.hierarchy-toolkit/Specs/
 
-Preferred structure:
+The goal is to build a fast, maintainable, artist-friendly internal Hierarchy workflow without replacing or destabilizing Unity's native editor behavior.
+
+---
+
+## Architecture
+
+Preferred package structure:
 
 Editor/
   Core/
@@ -57,118 +33,124 @@ Editor/
   Utilities/
   Tests/
 
+Specs/
+
 Runtime code should NOT be created unless explicitly required.
 
 The package should remain Editor-only whenever possible.
 
+Prefer modular features based on:
+
+IHierarchyFeature
+
+The central hierarchy system should coordinate features rather than implement all feature logic itself.
+
+Avoid giant manager classes.
+
+Features should be independently enableable whenever practical.
+
 ---
 
-## Primary Dependencies
+## Dependencies
 
 The project always contains:
 
 - Unity Editor API
-- Odin Inspector / Odin Serializer
+- Odin Inspector
+- Odin Serializer
 - DOTween Pro
-
-These dependencies are available and may be used.
 
 ### Odin
 
 Odin Inspector is an official dependency of this internal package.
 
-Prefer Odin when it meaningfully reduces boilerplate or improves editor UX.
+Use Odin when it meaningfully reduces boilerplate or improves editor UX.
 
-Odin SHOULD be used for:
+Prefer Odin for:
 
-- settings interfaces
+- settings windows
 - configuration panels
-- serialized rule lists
-- reorderable collections
-- dropdowns
-- search interfaces
+- rule editors
+- searchable lists
 - tables
 - previews
-- validation interfaces
-- custom configuration assets
-- editor windows
-- complex inspector layouts
-- artist-facing tooling
+- inspectors
+- popup editors
+- artist-facing management tools
 - polymorphic serialized configuration when useful
 
-Do NOT reimplement standard editor UI manually when Odin already provides a better and reliable solution.
+Do not use expensive Odin rendering inside frequently-called Hierarchy row rendering or binding paths.
 
-However, avoid expensive Odin GUI operations directly inside:
-
-EditorApplication.hierarchyWindowItemOnGUI
-
-The Hierarchy drawing loop must remain lightweight.
-
-Heavy configuration UI should live in dedicated Odin EditorWindows, inspectors, popup windows, or configuration assets.
+The Hierarchy drawing path must remain lightweight.
 
 ### Odin Serializer
 
-Odin Serializer may be used where Unity serialization is insufficient, especially for editor configuration or polymorphic data.
+Use Odin Serializer where Unity serialization is insufficient.
 
-Do not introduce unnecessarily complex serialization when standard Unity serialization already solves the problem cleanly.
+Do not introduce unnecessary serialization complexity when standard Unity serialization already solves the problem cleanly.
 
 ### DOTween
 
 DOTween Pro is available but should only be used when animation meaningfully improves UX.
 
-Do NOT use DOTween for:
+Do not use DOTween for:
 
 - basic Hierarchy drawing
-- simple state transitions that do not need animation
-- anything that causes continuous unnecessary Editor repainting
+- unnecessary state transitions
+- continuously repainted decorative animation
 
 Animation must never compromise Editor responsiveness.
 
 ---
 
-## Core Principles
+## Performance
 
-### 1. Performance First
+The Unity Hierarchy can redraw and rebind rows very frequently.
 
-The Unity Hierarchy can redraw extremely frequently.
+Code executed in:
 
-Code executed through:
+- hierarchyWindowItemByEntityIdOnGUI
+- Hierarchy row binding callbacks
+- generateVisualContent
+- GeometryChanged callbacks
+- frequently invoked UI Toolkit refresh paths
 
-EditorApplication.hierarchyWindowItemOnGUI
+must remain extremely cheap.
 
-must be extremely cheap.
-
-Avoid:
+Avoid in hot paths:
 
 - LINQ
-- reflection per frame
-- GetComponents repeatedly
-- AssetDatabase searches per draw
+- reflection
+- repeated GetComponents
+- AssetDatabase searches
+- repeated GlobalObjectId conversion
 - string allocations
 - temporary collections
 - new GUIContent allocations
 - repeated texture lookup
 - repeated type discovery
-- repeated GlobalObjectId conversion when avoidable
 
 Prefer:
 
 - caches
 - dirty flags
-- event-driven updates
+- event-driven invalidation
 - reusable GUIContent
 - cached GUIStyle
-- cached component information
 - cached textures
+- cached component data
 - cached type metadata
+- cached rule evaluation
 
-Invalidate caches only when relevant Editor state changes.
+Caches must have clear invalidation rules.
+
+Do not create caches that silently remain stale.
 
 ---
 
-### 2. Event Driven
+## Event-Driven Design
 
-Do not poll Editor state when an appropriate Unity Editor event exists.
+Do not poll Editor state when an appropriate event exists.
 
 Prefer events such as:
 
@@ -180,46 +162,23 @@ Prefer events such as:
 - EditorSceneManager.sceneSaved
 - EditorApplication.projectChanged
 
-Only use EditorApplication.update when there is no cleaner alternative.
+Use EditorApplication.update only when there is no cleaner alternative.
 
 ---
 
-### 3. Modular Features
-
-Features must be independently enableable.
-
-Prefer a modular feature architecture such as:
-
-IHierarchyFeature
-
-Each feature should own its:
-
-- settings
-- drawing
-- interaction
-- cache logic
-
-when practical.
-
-Avoid giant manager classes.
-
-The central hierarchy system should coordinate features rather than implement all feature logic itself.
-
----
-
-### 4. No Scene Pollution
+## Scene Safety
 
 Never add MonoBehaviours, hidden GameObjects, or helper components to scenes merely to store Hierarchy Toolkit metadata.
 
 Hierarchy metadata must live outside scene object components.
 
-Use stable Unity object identification where necessary.
+Use stable object identification where necessary.
 
 Prefer GlobalObjectId or another appropriate stable identifier instead of relying exclusively on InstanceID.
 
 ---
 
-### 5. Undo Support
+## Undo
 
 Every user action that changes:
 
@@ -232,37 +191,44 @@ Every user action that changes:
 
 must support Unity Undo whenever applicable.
 
-Use appropriate Unity APIs such as:
+Use appropriate APIs such as:
 
-Undo.RecordObject
-Undo.RegisterCompleteObjectUndo
-Undo.SetTransformParent
-Undo.RegisterCreatedObjectUndo
+- Undo.RecordObject
+- Undo.RegisterCompleteObjectUndo
+- Undo.SetTransformParent
+- Undo.RegisterCreatedObjectUndo
 
-Do not implement editor actions that cannot reasonably be undone when Unity supports Undo for that operation.
+One user action should behave as one logical Undo step when practical.
 
 ---
 
-### 6. Multi-Selection
+## Multi-Selection
 
 Where sensible, Hierarchy actions should support multiple selected GameObjects.
 
-Examples:
+Examples include:
 
-- assign color
-- assign icon
-- toggle active state
-- clear metadata
-- apply presets
+- assigning colors
+- assigning icons
+- toggling active state
+- clearing metadata
+- applying presets
 - validation actions
 
-Do not assume only one GameObject is selected unless the feature inherently requires one.
+Do not assume only one GameObject is selected unless the feature inherently requires it.
+
+When an action is triggered from a clicked object:
+
+- if that object belongs to the current selection, operate on eligible selected objects
+- otherwise operate only on the clicked object
+
+unless the active spec defines different behavior.
 
 ---
 
-### 7. Prefab Safety
+## Prefab Safety
 
-Features must behave correctly with:
+Features must behave safely with:
 
 - prefab assets
 - prefab instances
@@ -274,9 +240,11 @@ Do not accidentally modify prefab assets when the user intends to modify scene i
 
 Use Unity prefab APIs where appropriate.
 
+If a feature does not support a prefab context yet, fail safely and follow the active spec.
+
 ---
 
-### 8. Artist-Friendly UX
+## Artist UX
 
 The package is intended for programmers AND artists.
 
@@ -291,30 +259,26 @@ Prefer:
 - sensible defaults
 - clear terminology
 
-Avoid requiring artists to manually edit configuration files or code.
+Avoid requiring artists to manually edit code or configuration files.
 
 Advanced options may exist but should not clutter the normal workflow.
 
----
-
-### 9. Minimal Clicks
-
-Workflow speed is a primary design goal.
+Workflow speed is a design goal.
 
 Whenever practical:
 
 - actions should work directly from the Hierarchy
-- avoid forcing object selection before an action
+- avoid unnecessary selection changes
 - avoid unnecessary confirmation dialogs
-- provide contextual controls
-- use shortcuts for frequent operations
-- preserve current selection unless changing it is part of the action
+- preserve current selection
+- use contextual controls
+- support shortcuts for frequent operations
 
 ---
 
 ## Data Storage
 
-Separate data into appropriate scopes.
+Separate data according to scope.
 
 ### Shared Project Data
 
@@ -333,15 +297,15 @@ Store in project assets suitable for source control.
 
 Examples:
 
-- manually assigned GameObject color
-- manually assigned GameObject icon
+- manual GameObject color
+- manual GameObject icon
 - separator configuration
 
-Store using stable object identification.
+Use stable object identification.
 
 Metadata must survive normal Editor reloads.
 
-Avoid designs that generate unnecessary Git conflicts.
+Avoid designs that create unnecessary Git conflicts.
 
 ### Personal User Preferences
 
@@ -354,112 +318,7 @@ Examples:
 - shortcut preferences
 - popup behavior
 
-Prefer EditorPrefs or another appropriate user-local mechanism when settings should not be committed to source control.
-
----
-
-## Automatic Rules
-
-The architecture should support automatic rules.
-
-Examples:
-
-- Component type → icon
-- Component type → color
-- GameObject name → icon
-- GameObject name → color
-- Layer → visual style
-- Tag → visual style
-- validation condition → warning icon
-
-Manual overrides should take precedence over automatic rules unless a feature explicitly defines otherwise.
-
-Rule evaluation must be cached.
-
-Do not evaluate expensive rules every Hierarchy repaint.
-
----
-
-## Component Minimap
-
-Component Minimap must be designed with performance in mind.
-
-Do not call GetComponents every repaint.
-
-Cache component information and invalidate it when necessary.
-
-Component icons should:
-
-- provide tooltips
-- support configurable visibility
-- remain visually compact
-- avoid hiding the GameObject name
-- behave predictably on narrow Hierarchy windows
-
-Custom MonoBehaviour icons should be handled consistently.
-
----
-
-## Component Popup Inspector
-
-Popup component inspectors may use:
-
-Editor.CreateEditor
-
-and standard/Odin inspector rendering where appropriate.
-
-Popup inspectors must:
-
-- properly dispose temporary Editor instances
-- support Undo
-- avoid leaking references
-- avoid creating persistent Editor objects unnecessarily
-
----
-
-## Validation System
-
-Validation warnings should be extensible.
-
-Potential validations include:
-
-- Missing Script
-- missing serialized reference
-- missing material
-- invalid prefab state
-- disabled renderer
-- unexpected object configuration
-
-Validation must NOT scan the entire project every Hierarchy repaint.
-
-Use cached results and explicit/event-driven refresh.
-
-Warnings should provide useful tooltips explaining the problem.
-
-When appropriate, clicking a warning may provide a way to locate or fix the issue.
-
----
-
-## Settings
-
-Use Odin for the main settings experience.
-
-Settings should be divided logically, for example:
-
-General
-Appearance
-Colors
-Icons
-Component Minimap
-Navigation
-Shortcuts
-Automatic Rules
-Validation
-Advanced
-
-Features must be independently enableable.
-
-Prefer clear defaults that require little or no initial setup.
+Prefer EditorPrefs or another appropriate user-local mechanism when settings should not be committed.
 
 ---
 
@@ -469,39 +328,25 @@ The Hierarchy must remain visually readable.
 
 Avoid excessive visual noise.
 
-Features should cooperate when drawing into the same row.
+Features drawing into the same row must cooperate.
 
-Create a centralized layout system for right-side controls rather than allowing features to independently overlap each other.
-
-Reserve drawing regions where practical.
-
-Example conceptual row:
-
-[Hierarchy indentation] [Icon] GameObject Name [Warnings] [Components] [Active]
+Use centralized layout/reservation logic for right-side controls rather than allowing features to overlap independently.
 
 Feature rendering should degrade gracefully when the Hierarchy window becomes narrow.
 
----
+Conceptual row:
 
-## Caching
+[Indentation] [Icon] GameObject Name [Warnings] [Components] [Active]
 
-Prefer explicit caches for expensive data.
+Preserve native Unity behavior for:
 
-Potential caches:
+- selection
+- rename
+- foldouts
+- drag/reorder
+- prefab indicators
 
-- GUIContent
-- GUIStyle
-- textures/icons
-- component arrays
-- component icon mappings
-- reflection metadata
-- rule evaluation
-- validation results
-- GlobalObjectId mappings
-
-Caches must have clear invalidation rules.
-
-Do not create caches that silently become stale indefinitely.
+unless the active spec explicitly requires otherwise.
 
 ---
 
@@ -514,10 +359,12 @@ Do not log routine Editor operations.
 Errors should explain:
 
 - what failed
-- which object or feature was involved
+- which feature or object was involved
 - whether user action is required
 
 Debug logging must be optional.
+
+Temporary diagnostics added during debugging should be removed before completion unless intentionally kept behind a debug flag.
 
 ---
 
@@ -529,9 +376,9 @@ Unity 6.x
 
 Primary development environment is the Unity version currently used by the project.
 
-Do not add compatibility code for old Unity versions unless explicitly requested.
+Prefer modern Unity 6 APIs.
 
-Prefer modern Unity 6 APIs when appropriate.
+Do not add compatibility code for old Unity versions unless explicitly requested.
 
 ---
 
@@ -542,28 +389,24 @@ Prefer:
 - focused classes
 - meaningful names
 - small responsibilities
-- explicit ownership of caches
+- explicit cache ownership
 - clear feature boundaries
-
-One feature per class where practical.
-
-Prefer:
-
-IHierarchyFeature
-
-when appropriate.
+- reuse of existing architecture
 
 Avoid:
 
 - giant managers
-- global mutable state without justification
+- unnecessary global mutable state
 - unnecessary static state
 - duplicated GUI logic
 - duplicated caching systems
+- speculative abstractions
+
+One feature per class where practical.
 
 Public APIs should have XML documentation.
 
-Internal implementation does not require excessive documentation when the code is self-explanatory.
+Internal implementation does not require excessive comments when the code is self-explanatory.
 
 ---
 
@@ -571,18 +414,77 @@ Internal implementation does not require excessive documentation when the code i
 
 Prefer EditMode tests.
 
-Tests should focus on logic that can reliably be automated.
+Tests should focus on behavior and state that can be reliably automated.
 
-Examples:
+Relevant areas include:
 
-- metadata storage
+- metadata persistence
 - rule precedence
 - cache invalidation
 - settings serialization
-- multi-selection operations
-- validation rules
+- Undo/Redo
+- multi-selection
+- prefab safety
+- validation logic
 
-Do not create fragile tests that depend heavily on exact IMGUI pixel output.
+Do not create fragile tests that depend on exact pixel output or Editor layout details.
+
+Visual and interactive behavior should be manually verified when automated tests cannot prove correctness.
+
+Prefer the smallest test set that provides reasonable confidence in the current change.
+
+Do not run broad regression suites by default.
+
+---
+
+## Specs
+
+Feature behavior is defined in:
+
+Packages/com.meganeura.hierarchy-toolkit/Specs/
+
+For implementation tasks:
+
+- the active spec is the source of truth for feature-specific behavior
+- AGENTS.md defines global engineering constraints
+- do not expand scope beyond the active spec
+- do not automatically continue to the next spec
+- if the spec conflicts with AGENTS.md, AGENTS.md wins
+- if implementation requires changing the spec, stop and report the conflict
+
+Specs should normally contain:
+
+- Goal
+- Behavior
+- Requirements
+- Acceptance Criteria
+- Out of Scope
+
+Visual features may also contain:
+
+- Visual Reference
+- UX Notes
+
+---
+
+## Skills
+
+Use relevant Codex Skills when available.
+
+Skills define reusable execution workflows and do not replace AGENTS.md or Specs.
+
+Preferred Skills:
+
+- unity-editor-feature — implementing new Editor features
+- unity-hierarchy-ui — Hierarchy visual and interactive work
+- unity-editor-debug — debugging existing tooling
+- unity-editor-test — creating or extending tests
+
+AGENTS.md defines global engineering rules.
+
+Specs define feature behavior and acceptance criteria.
+
+Skills define reusable implementation, debugging, and testing workflows.
 
 ---
 
@@ -594,47 +496,11 @@ Never modify unrelated project code.
 
 Never make broad project-wide changes unless explicitly requested.
 
-When implementing a task:
-
-1. Read AGENTS.md.
-2. Inspect only files relevant to the requested task.
-3. Reuse existing architecture.
-4. Do not redesign working systems unless required.
-5. Implement only the requested feature or step.
-6. Compile.
-7. Fix errors caused by the current task.
-8. Run relevant targeted tests when they exist.
-9. Stop when the requested task is complete.
-
-Do not continue implementing future roadmap items without being asked.
-
----
-
-## Codex Token Efficiency
-
-Avoid exploring unrelated project directories.
-
 For Hierarchy Toolkit tasks, prioritize files inside:
 
 Packages/com.meganeura.hierarchy-toolkit/
 
-Only inspect external files when required to understand an explicit integration.
-
-Do not repeatedly reread unchanged files unless necessary.
-
-Do not provide long implementation explanations after completing tasks.
-
-Final reports should normally contain only:
-
-- files created
-- files modified
-- compilation result
-- tests executed
-- blockers or important implementation notes
-
----
-
-## Repository Exploration Limits
+Do not inspect unrelated project directories unless necessary.
 
 Do not inspect or search these directories unless explicitly required:
 
@@ -647,32 +513,129 @@ Do not inspect or search these directories unless explicitly required:
 
 Do not perform broad repository-wide searches when the relevant package path is already known.
 
-For normal C# creation/editing, use direct file operations when available.
+Use direct file operations for normal C# creation/editing when available.
+
 Use Unity MCP primarily for:
+
 - compilation
 - console errors
 - EditMode tests
 - Unity-specific validation
 - asset/database operations that require the Editor
 
+Do not repeatedly reread unchanged files unless necessary.
+
+Do not provide long implementation explanations after completing tasks.
+
+---
+
+## Implementation Workflow
+
+When implementing a task:
+
+1. Follow AGENTS.md.
+2. Read the active spec completely.
+3. Use relevant Skills when available.
+4. Inspect only files relevant to the task.
+5. Reuse existing architecture.
+6. Do not redesign working systems unless required.
+7. Implement only the active spec.
+8. Compile.
+9. Fix only errors caused by the current task.
+10. Run targeted tests for the active feature.
+11. Run only directly impacted regression tests when shared infrastructure changed.
+12. Inspect package-related Console errors.
+13. Report manual verification when visual behavior cannot be proven automatically.
+14. Stop when the active spec is complete.
+
+Do not automatically run the full Hierarchy Toolkit suite.
+
+---
+
+## Definition of Done
+
+A feature is complete only when:
+
+1. all acceptance criteria from the active spec are implemented
+2. Unity compilation succeeds
+3. relevant targeted EditMode tests pass
+4. directly impacted regression tests pass when required
+5. no package-related Console errors remain
+6. unrelated project errors are not modified or "fixed"
+7. visual or interactive behavior is manually verified when automated tests cannot prove it
+8. the final report states:
+   - compilation result
+   - targeted tests executed
+   - impact-based regression tests executed, if any
+   - acceptance criteria verified automatically
+   - manual verification still required
+   - remaining blockers
+
+The full Hierarchy Toolkit suite is not required for normal feature work.
+
+---
+
+## Validation Harness
+
+Validation procedure is defined in:
+
+Packages/com.meganeura.hierarchy-toolkit/Specs/HARNESS.md
+
+Default validation is:
+
+- compile
+- targeted tests
+- impact-based regression tests only when justified
+- Console validation
+- manual verification when required
+
+Do not run the full Hierarchy Toolkit suite during normal feature work unless HARNESS.md explicitly calls for it.
+
+Prefer the smallest test set that provides reasonable confidence in the current change.
+
+Do not claim visual verification unless it was actually performed.
+
 ---
 
 ## Full Suite Policy
 
-Run targeted tests first.
+The full Hierarchy Toolkit EditMode suite is reserved for:
 
-Run the full Hierarchy Toolkit suite only when shared infrastructure changed.
+- explicit user requests
+- release or milestone validation
+- dedicated regression passes
+- high-risk architectural changes affecting most Toolkit features
+- cases where targeted tests reveal evidence of broader breakage
 
-If the full suite reveals a failure unrelated to the current task:
+If a full-suite run reveals a failure unrelated to the current task:
 
-1. rerun that failing test once in isolation
-2. if the failure reproduces and the changed files are unrelated, report it as pre-existing
+1. rerun the failing test once in isolation
+2. if it reproduces and the changed files are unrelated, report it as pre-existing
 3. do not investigate or fix it unless explicitly requested
-4. stop further unrelated debugging
+4. stop unrelated debugging
 
-## Important
+---
 
-Before implementing any feature, prioritize in this order:
+## Final Report
+
+Final reports should normally contain only:
+
+- files created
+- files modified
+- compilation result
+- targeted tests executed/result
+- impacted regression tests executed/result, if any
+- full suite: not required / executed
+- Console result
+- acceptance criteria verified automatically
+- manual verification still required
+- blockers or important notes
+
+---
+
+## Priorities
+
+When multiple implementation approaches are valid, prioritize:
 
 1. correctness
 2. Editor stability
@@ -683,4 +646,4 @@ Before implementing any feature, prioritize in this order:
 
 Do not sacrifice Hierarchy responsiveness for cosmetic functionality.
 
-When multiple implementation approaches are valid, prefer the one that produces the best long-term internal tool rather than the one with the fewest lines of code.
+Prefer the best long-term internal-tool design over the fewest lines of code.

@@ -12,7 +12,8 @@ namespace Meganeura.HierarchyToolkit
         internal static readonly HierarchyLinesFeature HierarchyLines = new HierarchyLinesFeature();
         internal static readonly SeparatorFeature Separators = new SeparatorFeature();
         internal static readonly ActivationToggleFeature Activation = new ActivationToggleFeature();
-        private static readonly VisualHierarchyBinding Visuals = new VisualHierarchyBinding(ZebraStriping, HierarchyLines, ManualColors.Cache, Separators, Activation);
+        internal static readonly ComponentMinimapFeature ComponentMinimap = new ComponentMinimapFeature();
+        private static readonly VisualHierarchyBinding Visuals = new VisualHierarchyBinding(ZebraStriping, HierarchyLines, ManualColors.Cache, Separators, Activation, ComponentMinimap);
 
         static HierarchyToolkitBootstrap()
         {
@@ -23,6 +24,7 @@ namespace Meganeura.HierarchyToolkit
             HierarchyDrawer.Register(HierarchyLines);
             HierarchyDrawer.Register(ManualIcons);
             HierarchyDrawer.Register(Activation);
+            HierarchyDrawer.Register(ComponentMinimap);
             AssemblyReloadEvents.beforeAssemblyReload += Shutdown;
             EditorApplication.quitting += Shutdown;
         }
@@ -30,6 +32,7 @@ namespace Meganeura.HierarchyToolkit
         private static void Shutdown()
         {
             Visuals.Dispose();
+            ComponentMinimap.Dispose();
             Separators.Dispose();
             ManualColors.Dispose();
             ManualIcons.Dispose();
