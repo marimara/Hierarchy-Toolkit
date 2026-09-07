@@ -21,6 +21,7 @@ namespace Meganeura.HierarchyToolkit
             this.feature = feature;
             this.minimap = minimap;
             minimapControl = new ComponentMinimapControl();
+            minimapControl.Bind(target);
             item.RowContainer.Add(minimapControl);
             name = "hierarchy-toolkit-activation";
             style.position = Position.Absolute;
@@ -93,6 +94,7 @@ namespace Meganeura.HierarchyToolkit
                 item.NavigateIntoButton.UnregisterCallback<GeometryChangedEvent>(GeometryChanged);
             toggle.UnregisterValueChangedCallback(OnChanged);
             target = null;
+            minimapControl.Bind(null);
             minimapControl.RemoveFromHierarchy();
             RemoveFromHierarchy();
         }

@@ -45,6 +45,10 @@ Only one popup inspector should be active at a time unless the existing architec
 - Do not block normal Hierarchy interaction after closing.
 - Prefer a size appropriate to the component Inspector rather than a large generic window.
 - If the popup cannot fit cleanly near the click position, reposition it within the visible Editor area.
+- The popup must be movable by the user.
+- Prefer dragging through the popup header/title area.
+- Moving the popup must not change Hierarchy selection or edit component values.
+- The popup should remain inside the visible Unity Editor desktop area when practical.
 
 ## Interaction
 
@@ -79,6 +83,7 @@ Only one popup inspector should be active at a time unless the existing architec
 - Activation Toggle remains functional.
 - Existing colors, icons, separators, zebra striping, and hierarchy lines remain functional.
 - No package-related Console errors are introduced.
+- The popup can be repositioned by dragging its header/title area.
 
 ## Out of Scope
 
