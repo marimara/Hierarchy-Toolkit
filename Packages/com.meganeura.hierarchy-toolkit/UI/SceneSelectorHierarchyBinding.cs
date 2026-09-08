@@ -14,6 +14,18 @@ namespace Meganeura.HierarchyToolkit
         private readonly SceneCatalog catalog;
         private readonly SceneFavoriteStore favorites;
         private readonly Dictionary<HierarchyViewItem, RowBinding> rows = new();
+        private bool enabled = true;
+
+        internal bool Enabled
+        {
+            get => enabled;
+            set
+            {
+                if (enabled == value) return;
+                enabled = value;
+                foreach (var row in rows.Values) row.Refresh(enabled);
+            }
+        }
 
         internal SceneSelectorHierarchyBinding(SceneCatalog catalog, SceneFavoriteStore favorites)
         {
@@ -38,7 +50,7 @@ namespace Meganeura.HierarchyToolkit
             var node = item.Node;
             var scene = handler.GetScene(node);
             if (!scene.IsValid() || string.IsNullOrEmpty(scene.path)) return;
-            rows.Add(item, new RowBinding(window, item, scene, catalog, favorites));
+            rows.Add(item, new RowBinding(window, item, scene, catalog, favorites, () => Enabled));
         }
 
         private void UnbindItem(HierarchyWindow window, HierarchyView view, HierarchyViewItem item)
@@ -66,6 +78,7 @@ namespace Meganeura.HierarchyToolkit
             private readonly Scene scene;
             private readonly SceneCatalog catalog;
             private readonly SceneFavoriteStore favorites;
+            private readonly Func<bool> enabled;
 
             private readonly Label arrow;
             private readonly string previousTooltip;
@@ -75,16 +88,18 @@ namespace Meganeura.HierarchyToolkit
                 HierarchyViewItem item,
                 Scene scene,
                 SceneCatalog catalog,
-                SceneFavoriteStore favorites)
+                SceneFavoriteStore favorites,
+                Func<bool> enabled)
             {
                 this.window = window;
                 this.item = item;
                 this.scene = scene;
                 this.catalog = catalog;
                 this.favorites = favorites;
+                this.enabled = enabled;
 
                 previousTooltip = item.Name.tooltip;
-                item.Name.tooltip = "Open project scene selector";
+                item.Name.tooltip = enabled() ? "Open project scene selector" : previousTooltip;
 
                 item.Name.RegisterCallback<PointerDownEvent>(
                     PointerDown,
@@ -128,6 +143,13 @@ namespace Meganeura.HierarchyToolkit
                 item.RowContainer.RegisterCallback<GeometryChangedEvent>(GeometryChanged);
 
                 PositionArrow();
+                Refresh(enabled());
+            }
+
+            internal void Refresh(bool value)
+            {
+                arrow.style.display = value ? DisplayStyle.Flex : DisplayStyle.None;
+                item.Name.tooltip = value ? "Open project scene selector" : previousTooltip;
             }
 
             private void GeometryChanged(GeometryChangedEvent evt)
@@ -156,7 +178,7 @@ namespace Meganeura.HierarchyToolkit
 
             private void PointerDown(PointerDownEvent evt)
             {
-                if (evt.button != 0)
+                if (!enabled() || evt.button != 0)
                     return;
 
                 evt.StopImmediatePropagation();

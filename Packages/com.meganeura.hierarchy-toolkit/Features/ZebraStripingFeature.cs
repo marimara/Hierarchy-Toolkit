@@ -8,6 +8,7 @@ namespace Meganeura.HierarchyToolkit
     internal sealed class ZebraStripingFeature : IHierarchyFeature
     {
         private readonly ManualColorCache colors;
+        private readonly Func<bool> manualColorsEnabled;
         private bool enabled = true;
         internal event Action Changed;
         internal bool Enabled
@@ -16,11 +17,15 @@ namespace Meganeura.HierarchyToolkit
             set { if (enabled == value) return; enabled = value; Changed?.Invoke(); }
         }
 
-        internal ZebraStripingFeature(ManualColorCache colors) => this.colors = colors;
+        internal ZebraStripingFeature(ManualColorCache colors, Func<bool> manualColorsEnabled = null)
+        {
+            this.colors = colors;
+            this.manualColorsEnabled = manualColorsEnabled ?? (() => true);
+        }
 
         internal bool ShouldDraw(EntityId id, int visibleIndex, bool selected)
             => Enabled && visibleIndex >= 0 && (visibleIndex & 1) != 0
-                && !selected && !colors.TryGetColor(id, out _);
+                && !selected && (!manualColorsEnabled() || !colors.TryGetColor(id, out _));
 
         private static Color Tint => EditorGUIUtility.isProSkin
             ? new Color(1f, 1f, 1f, 0.025f) : new Color(0f, 0f, 0f, 0.025f);

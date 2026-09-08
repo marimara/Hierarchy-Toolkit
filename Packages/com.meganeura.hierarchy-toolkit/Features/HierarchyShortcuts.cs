@@ -29,7 +29,11 @@ namespace Meganeura.HierarchyToolkit
             ShortcutManager.RegisterContext(this);
         }
 
-        public bool active => TryGetHoveredTarget(out _, out _, out _) && !IsEditingText(hoveredWindow);
+        public bool active => HierarchyToolkitPreferences.ToolkitEnabled
+            && (HierarchyToolkitPreferences.IsShortcutSelected(HierarchyShortcut.ToggleDefaultParent)
+                || HierarchyToolkitPreferences.IsShortcutSelected(HierarchyShortcut.ExpandCollapseHovered)
+                || HierarchyToolkitPreferences.IsShortcutSelected(HierarchyShortcut.IsolateHoveredBranch))
+            && TryGetHoveredTarget(out _, out _, out _) && !IsEditingText(hoveredWindow);
 
         [Shortcut(ToggleShortcutId, typeof(HierarchyShortcuts), KeyCode.E)]
         private static void ToggleHovered(ShortcutArguments arguments)
@@ -53,17 +57,21 @@ namespace Meganeura.HierarchyToolkit
         }
 
         internal bool TryToggleHovered()
-            => !IsEditingText(hoveredWindow)
+            => HierarchyToolkitPreferences.IsShortcutEnabled(HierarchyShortcut.ExpandCollapseHovered)
+               && !IsEditingText(hoveredWindow)
                && TryGetHoveredTarget(out _, out var view, out var node)
                && HierarchyNavigation.ToggleExpanded(view, node);
 
         internal bool TryIsolateHovered()
-            => !IsEditingText(hoveredWindow)
+            => HierarchyToolkitPreferences.IsShortcutEnabled(HierarchyShortcut.IsolateHoveredBranch)
+               && !IsEditingText(hoveredWindow)
                && TryGetHoveredTarget(out _, out var view, out var node)
                && HierarchyNavigation.Isolate(view, node);
 
         internal bool TryToggleDefaultParentHovered()
-            => !IsEditingText(hoveredWindow)
+            => HierarchyToolkitPreferences.IsShortcutEnabled(HierarchyShortcut.ToggleDefaultParent)
+               && HierarchyToolkitPreferences.IsFeatureEnabled(HierarchyFeature.DefaultParent)
+               && !IsEditingText(hoveredWindow)
                && TryGetHoveredTarget(out var target, out _, out _)
                && DefaultParentOperations.Toggle(target);
 

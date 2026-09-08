@@ -13,6 +13,13 @@ namespace Meganeura.HierarchyToolkit
     {
         private readonly DefaultParentCache cache;
         private readonly Dictionary<HierarchyViewItem, RowBinding> rows = new();
+        private bool enabled = true;
+
+        internal bool Enabled
+        {
+            get => enabled;
+            set { if (enabled == value) return; enabled = value; Refresh(); }
+        }
 
         internal DefaultParentHierarchyBinding(DefaultParentCache cache)
         {
@@ -35,7 +42,7 @@ namespace Meganeura.HierarchyToolkit
         {
             UnbindItem(window, view, item);
             if (item.Handler is HierarchyGameObjectHandler handler)
-                rows.Add(item, new RowBinding(item, handler.GetEntityId(item.Node), cache));
+                rows.Add(item, new RowBinding(item, handler.GetEntityId(item.Node), cache, () => Enabled));
         }
 
         private void UnbindItem(HierarchyWindow window, HierarchyView view, HierarchyViewItem item)
@@ -69,13 +76,15 @@ namespace Meganeura.HierarchyToolkit
             private readonly HierarchyViewItem item;
             private readonly EntityId id;
             private readonly DefaultParentCache cache;
+            private readonly Func<bool> enabled;
             private readonly Label indicator;
 
-            internal RowBinding(HierarchyViewItem item, EntityId id, DefaultParentCache cache)
+            internal RowBinding(HierarchyViewItem item, EntityId id, DefaultParentCache cache, Func<bool> enabled)
             {
                 this.item = item;
                 this.id = id;
                 this.cache = cache;
+                this.enabled = enabled;
                 indicator = new Label("Default parent")
                 {
                     name = "hierarchy-toolkit-default-parent",
@@ -103,7 +112,7 @@ namespace Meganeura.HierarchyToolkit
 
             internal void Refresh()
             {
-                if (!cache.Contains(id))
+                if (!enabled() || !cache.Contains(id))
                 {
                     indicator.style.display = DisplayStyle.None;
                     return;

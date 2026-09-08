@@ -19,20 +19,24 @@ namespace Meganeura.HierarchyToolkit
         private static bool ValidateSet(MenuCommand command)
         {
             var target = command.context as GameObject;
-            return ManualColorOperations.IsSupported(target) && !DefaultParentOperations.IsActive(target);
+            return HierarchyToolkitPreferences.IsFeatureEnabled(HierarchyFeature.DefaultParent)
+                && ManualColorOperations.IsSupported(target) && !DefaultParentOperations.IsActive(target);
         }
 
         [MenuItem(ClearPath, true)]
         private static bool ValidateClear(MenuCommand command)
-            => DefaultParentOperations.IsActive(command.context as GameObject);
+            => HierarchyToolkitPreferences.IsFeatureEnabled(HierarchyFeature.DefaultParent)
+                && DefaultParentOperations.IsActive(command.context as GameObject);
 
         private static void Queue(MenuCommand command, bool clear)
         {
-            if (queued || command.context is not GameObject target || !ManualColorOperations.IsSupported(target)) return;
+            if (queued || !HierarchyToolkitPreferences.IsFeatureEnabled(HierarchyFeature.DefaultParent)
+                || command.context is not GameObject target || !ManualColorOperations.IsSupported(target)) return;
             queued = true;
             EditorApplication.delayCall += () =>
             {
                 queued = false;
+                if (!HierarchyToolkitPreferences.IsFeatureEnabled(HierarchyFeature.DefaultParent)) return;
                 if (ManualColorOperations.IsSupported(target) && DefaultParentOperations.IsActive(target) == clear)
                     DefaultParentOperations.Toggle(target);
             };

@@ -16,17 +16,19 @@ namespace Meganeura.HierarchyToolkit
         [MenuItem(AddPath, true)]
         [MenuItem(RemovePath, true)]
         private static bool Validate(MenuCommand command) =>
-            ManualColorOperations.ResolveTargets(command.context as GameObject, Selection.gameObjects).Length > 0;
+            HierarchyToolkitPreferences.IsFeatureEnabled(HierarchyFeature.GameObjectBookmarks)
+            && ManualColorOperations.ResolveTargets(command.context as GameObject, Selection.gameObjects).Length > 0;
 
         private static void Queue(MenuCommand command, bool remove)
         {
-            if (queued) return;
+            if (queued || !HierarchyToolkitPreferences.IsFeatureEnabled(HierarchyFeature.GameObjectBookmarks)) return;
             var targets = ManualColorOperations.ResolveTargets(command.context as GameObject, Selection.gameObjects);
             if (targets.Length == 0) return;
             queued = true;
             EditorApplication.delayCall += () =>
             {
                 queued = false;
+                if (!HierarchyToolkitPreferences.IsFeatureEnabled(HierarchyFeature.GameObjectBookmarks)) return;
                 if (remove) HierarchyToolkitBootstrap.Bookmarks.Remove(null, targets);
                 else HierarchyToolkitBootstrap.Bookmarks.Add(null, targets);
             };

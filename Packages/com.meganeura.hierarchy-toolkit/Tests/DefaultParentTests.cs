@@ -23,10 +23,19 @@ namespace Meganeura.HierarchyToolkit.Tests
         private GameObject first;
         private GameObject second;
         private SceneMetadataStore store;
+        private bool toolkitEnabled;
+        private bool featureEnabled;
+        private bool shortcutEnabled;
 
         [SetUp]
         public void SetUp()
         {
+            toolkitEnabled = HierarchyToolkitPreferences.ToolkitEnabled;
+            featureEnabled = HierarchyToolkitPreferences.IsFeatureSelected(HierarchyFeature.DefaultParent);
+            shortcutEnabled = HierarchyToolkitPreferences.IsShortcutSelected(HierarchyShortcut.ToggleDefaultParent);
+            HierarchyToolkitPreferences.ToolkitEnabled = true;
+            HierarchyToolkitPreferences.SetFeature(HierarchyFeature.DefaultParent, true);
+            HierarchyToolkitPreferences.SetShortcut(HierarchyShortcut.ToggleDefaultParent, true);
             previousScene = SceneManager.GetActiveScene();
             previousSelection = Selection.objects;
             const string root = "Packages/com.meganeura.hierarchy-toolkit/Tests";
@@ -70,6 +79,9 @@ namespace Meganeura.HierarchyToolkit.Tests
             Selection.objects = previousSelection;
             if (!string.IsNullOrEmpty(storePath)) AssetDatabase.DeleteAsset(storePath);
             if (!string.IsNullOrEmpty(folder)) AssetDatabase.DeleteAsset(folder);
+            HierarchyToolkitPreferences.SetFeature(HierarchyFeature.DefaultParent, featureEnabled);
+            HierarchyToolkitPreferences.SetShortcut(HierarchyShortcut.ToggleDefaultParent, shortcutEnabled);
+            HierarchyToolkitPreferences.ToolkitEnabled = toolkitEnabled;
         }
 
         [Test]

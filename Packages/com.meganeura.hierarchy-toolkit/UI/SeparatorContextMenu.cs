@@ -19,11 +19,12 @@ namespace Meganeura.HierarchyToolkit
 
         [MenuItem(MarkPath, true), MenuItem(EditPath, true), MenuItem(ClearPath, true)]
         private static bool Validate(MenuCommand command) =>
-            ManualColorOperations.ResolveTargets(command.context as GameObject, Selection.gameObjects).Length > 0;
+            HierarchyToolkitPreferences.IsFeatureEnabled(HierarchyFeature.Separators)
+            && ManualColorOperations.ResolveTargets(command.context as GameObject, Selection.gameObjects).Length > 0;
 
         private static void Queue(MenuCommand command, int action)
         {
-            if (queued) return;
+            if (queued || !HierarchyToolkitPreferences.IsFeatureEnabled(HierarchyFeature.Separators)) return;
             var clicked = command.context as GameObject;
             var targets = ManualColorOperations.ResolveTargets(clicked, Selection.gameObjects);
             if (targets.Length == 0) return;
@@ -33,6 +34,7 @@ namespace Meganeura.HierarchyToolkit
             EditorApplication.delayCall += () =>
             {
                 queued = false;
+                if (!HierarchyToolkitPreferences.IsFeatureEnabled(HierarchyFeature.Separators)) return;
                 if (action == 0) SeparatorOperations.Mark(targets);
                 else if (action == 2) SeparatorOperations.Clear(targets);
                 else if (ManualColorOperations.IsSupported(editTarget)) SeparatorEditor.Open(editTarget);

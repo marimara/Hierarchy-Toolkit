@@ -18,13 +18,14 @@ namespace Meganeura.HierarchyToolkit
         [MenuItem(SetPath, true)]
         [MenuItem(ClearPath, true)]
         private static bool Validate(MenuCommand command) =>
-            ManualColorOperations.ResolveTargets(command.context as GameObject, Selection.gameObjects).Length > 0;
+            HierarchyToolkitPreferences.IsFeatureEnabled(HierarchyFeature.ManualIcons)
+            && ManualColorOperations.ResolveTargets(command.context as GameObject, Selection.gameObjects).Length > 0;
 
         private static void Queue(MenuCommand command, bool clear)
         {
             // Unity may invoke GameObject menu commands once per selected object.
             // Capture the first invocation and execute the complete operation only once.
-            if (queued) return;
+            if (queued || !HierarchyToolkitPreferences.IsFeatureEnabled(HierarchyFeature.ManualIcons)) return;
             var clicked = command.context as GameObject;
             var targets = ManualColorOperations.ResolveTargets(clicked, Selection.gameObjects);
             if (targets.Length == 0) return;
@@ -33,6 +34,7 @@ namespace Meganeura.HierarchyToolkit
             EditorApplication.delayCall += () =>
             {
                 queued = false;
+                if (!HierarchyToolkitPreferences.IsFeatureEnabled(HierarchyFeature.ManualIcons)) return;
                 if (clear) ManualIconOperations.Apply(targets, null);
                 else ManualIconPicker.Open(targets, initialIcon);
             };

@@ -11,9 +11,11 @@ namespace Meganeura.HierarchyToolkit
     internal sealed class QuickStylePaletteHierarchyBinding : IDisposable
     {
         private readonly Dictionary<HierarchyViewItem, RowBinding> rows = new();
+        private readonly Func<bool> enabled;
 
-        internal QuickStylePaletteHierarchyBinding()
+        internal QuickStylePaletteHierarchyBinding(Func<bool> enabled = null)
         {
+            this.enabled = enabled ?? (() => true);
             HierarchyWindow.BindViewItem += BindItem;
             HierarchyWindow.UnbindViewItem += UnbindItem;
             HierarchyWindow.UnbindView += UnbindView;
@@ -30,7 +32,7 @@ namespace Meganeura.HierarchyToolkit
         {
             UnbindItem(window, view, item);
             if (item.Handler is not HierarchyGameObjectHandler handler) return;
-            rows.Add(item, new RowBinding(window, item, handler.GetEntityId(item.Node)));
+            rows.Add(item, new RowBinding(window, item, handler.GetEntityId(item.Node), enabled));
         }
 
         private void UnbindItem(HierarchyWindow window, HierarchyView view, HierarchyViewItem item)
@@ -56,18 +58,20 @@ namespace Meganeura.HierarchyToolkit
             private readonly HierarchyWindow window;
             private readonly HierarchyViewItem item;
             private readonly EntityId id;
+            private readonly Func<bool> enabled;
 
-            internal RowBinding(HierarchyWindow window, HierarchyViewItem item, EntityId id)
+            internal RowBinding(HierarchyWindow window, HierarchyViewItem item, EntityId id, Func<bool> enabled)
             {
                 this.window = window;
                 this.item = item;
                 this.id = id;
+                this.enabled = enabled;
                 item.RowContainer.RegisterCallback<PointerDownEvent>(PointerDown, TrickleDown.TrickleDown);
             }
 
             private void PointerDown(PointerDownEvent evt)
             {
-                if (evt.button != 0 || !evt.altKey || item.Toggle.worldBound.Contains(evt.position)) return;
+                if (!enabled() || evt.button != 0 || !evt.altKey || item.Toggle.worldBound.Contains(evt.position)) return;
                 var target = EditorUtility.EntityIdToObject(id) as GameObject;
                 if (!ManualColorOperations.IsSupported(target)) return;
                 var bound = item.RowContainer.worldBound;

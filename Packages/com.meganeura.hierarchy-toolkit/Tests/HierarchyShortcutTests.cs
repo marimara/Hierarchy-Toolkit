@@ -22,10 +22,16 @@ namespace Meganeura.HierarchyToolkit.Tests
         private GameObject targetParent;
         private GameObject target;
         private GameObject unrelated;
+        private bool toolkitEnabled;
+        private bool expandShortcutEnabled;
 
         [SetUp]
         public void SetUp()
         {
+            toolkitEnabled = HierarchyToolkitPreferences.ToolkitEnabled;
+            expandShortcutEnabled = HierarchyToolkitPreferences.IsShortcutSelected(HierarchyShortcut.ExpandCollapseHovered);
+            HierarchyToolkitPreferences.ToolkitEnabled = true;
+            HierarchyToolkitPreferences.SetShortcut(HierarchyShortcut.ExpandCollapseHovered, true);
             previousScene = SceneManager.GetActiveScene();
             previousSelection = Selection.objects;
             var name = "HierarchyShortcutTest_" + Guid.NewGuid().ToString("N");
@@ -55,6 +61,8 @@ namespace Meganeura.HierarchyToolkit.Tests
             if (previousScene.IsValid() && previousScene.isLoaded) SceneManager.SetActiveScene(previousScene);
             Selection.objects = previousSelection;
             if (folder != null) AssetDatabase.DeleteAsset(folder);
+            HierarchyToolkitPreferences.SetShortcut(HierarchyShortcut.ExpandCollapseHovered, expandShortcutEnabled);
+            HierarchyToolkitPreferences.ToolkitEnabled = toolkitEnabled;
         }
 
         [UnityTest]

@@ -11,11 +11,13 @@ namespace Meganeura.HierarchyToolkit
     internal sealed class ManualIconHierarchyBinding : IDisposable
     {
         private readonly ManualIconCache cache;
+        private readonly Func<bool> enabled;
         private readonly Dictionary<VisualElement, (EntityId id, StyleBackground background)> icons = new();
 
-        internal ManualIconHierarchyBinding(ManualIconCache cache)
+        internal ManualIconHierarchyBinding(ManualIconCache cache, Func<bool> enabled = null)
         {
             this.cache = cache;
+            this.enabled = enabled ?? (() => true);
             HierarchyWindow.BindViewItem += BindItem;
             HierarchyWindow.UnbindViewItem += UnbindItem;
             HierarchyWindow.UnbindView += UnbindView;
@@ -53,14 +55,14 @@ namespace Meganeura.HierarchyToolkit
             if (icon != null && icons.Remove(icon, out var original)) icon.style.backgroundImage = original.background;
         }
 
-        private void Refresh()
+        internal void Refresh()
         {
             foreach (var icon in icons) Apply(icon.Key, icon.Value.id, icon.Value.background);
         }
 
         private void Apply(VisualElement element, EntityId id, StyleBackground original)
         {
-            if (!cache.TryGetIcon(id, out var icon)) element.style.backgroundImage = original;
+            if (!enabled() || !cache.TryGetIcon(id, out var icon)) element.style.backgroundImage = original;
             else if (icon is Sprite sprite) element.style.backgroundImage = new StyleBackground(sprite);
             else element.style.backgroundImage = new StyleBackground((Texture2D)icon);
         }

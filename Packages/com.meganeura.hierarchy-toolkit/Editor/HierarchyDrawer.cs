@@ -55,6 +55,8 @@ namespace Meganeura.HierarchyToolkit
 
         private static void DrawRow(EntityId entityId, Rect rowRect)
         {
+            if (!HierarchyToolkitPreferences.ToolkitEnabled)
+                return;
             // A stable array also permits registration changes during dispatch.
             var currentFeatures = features;
             if (currentFeatures.Length == 0)

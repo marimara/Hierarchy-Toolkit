@@ -27,7 +27,8 @@ namespace Meganeura.HierarchyToolkit
 
         private void PointerDown(PointerDownEvent evt)
         {
-            if (evt.button != 0 || !evt.altKey || evt.currentTarget is not Image image) return;
+            if (!HierarchyToolkitPreferences.IsFeatureEnabled(HierarchyFeature.ComponentPopupInspector)
+                || evt.button != 0 || !evt.altKey || evt.currentTarget is not Image image) return;
             evt.StopImmediatePropagation();
             var index = images.IndexOf(image);
             if (snapshot == null || index < 0 || index >= snapshot.Length) return;

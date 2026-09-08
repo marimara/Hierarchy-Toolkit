@@ -13,6 +13,19 @@ namespace Meganeura.HierarchyToolkit
     {
         private readonly GameObjectBookmarkStore store;
         private readonly Dictionary<HierarchyWindow, ToolbarButton> buttons = new();
+        private bool enabled = true;
+
+        internal bool Enabled
+        {
+            get => enabled;
+            set
+            {
+                if (enabled == value) return;
+                enabled = value;
+                foreach (var button in buttons.Values)
+                    button.style.display = enabled ? DisplayStyle.Flex : DisplayStyle.None;
+            }
+        }
 
         internal GameObjectBookmarkNavigation(GameObjectBookmarkStore store)
         {
@@ -42,11 +55,13 @@ namespace Meganeura.HierarchyToolkit
             button.style.minWidth = 26;
             button.style.flexShrink = 0;
             toolbar.Add(button);
+            button.style.display = Enabled ? DisplayStyle.Flex : DisplayStyle.None;
             buttons.Add(window, button);
         }
 
         private void OpenMenu(HierarchyWindow window)
         {
+            if (!Enabled) return;
             var menu = new GenericMenu();
             var entries = store.Entries;
             // Resolve only on explicit menu opening/clicking, never on repaint or row binding.

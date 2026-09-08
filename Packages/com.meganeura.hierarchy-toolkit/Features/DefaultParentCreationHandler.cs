@@ -7,11 +7,12 @@ namespace Meganeura.HierarchyToolkit
 {
     internal sealed class DefaultParentCreationHandler : IDisposable
     {
+        internal bool Enabled { get; set; } = true;
         internal DefaultParentCreationHandler() => ObjectChangeEvents.changesPublished += ObjectsChanged;
 
-        private static void ObjectsChanged(ref ObjectChangeEventStream stream)
+        private void ObjectsChanged(ref ObjectChangeEventStream stream)
         {
-            if (EditorApplication.isPlayingOrWillChangePlaymode) return;
+            if (!Enabled || EditorApplication.isPlayingOrWillChangePlaymode) return;
             for (var i = 0; i < stream.length; ++i)
             {
                 if (stream.GetEventType(i) != ObjectChangeKind.CreateGameObjectHierarchy) continue;

@@ -16,12 +16,12 @@ namespace Meganeura.HierarchyToolkit
         private readonly Dictionary<HierarchyView, HierarchyLinesFeature.BranchCache> branches = new();
         private readonly ZebraStripingFeature zebra;
         private readonly HierarchyLinesFeature lines;
-        private readonly ManualColorCache colors;
+        private readonly ManualColorFeature colors;
         private readonly SeparatorFeature separators;
         private readonly ActivationToggleFeature activation;
         private readonly ComponentMinimapFeature minimap;
 
-        internal VisualHierarchyBinding(ZebraStripingFeature zebra, HierarchyLinesFeature lines, ManualColorCache colors, SeparatorFeature separators, ActivationToggleFeature activation, ComponentMinimapFeature minimap)
+        internal VisualHierarchyBinding(ZebraStripingFeature zebra, HierarchyLinesFeature lines, ManualColorFeature colors, SeparatorFeature separators, ActivationToggleFeature activation, ComponentMinimapFeature minimap)
         {
             this.zebra = zebra;
             this.lines = lines;
@@ -35,6 +35,7 @@ namespace Meganeura.HierarchyToolkit
             Selection.selectionChanged += Refresh;
             EditorApplication.hierarchyChanged += HierarchyChanged;
             Undo.undoRedoPerformed += HierarchyChanged;
+            colors.Cache.Changed += Refresh;
             colors.Changed += Refresh;
             zebra.Changed += Refresh;
             lines.Changed += Refresh;
@@ -104,6 +105,7 @@ namespace Meganeura.HierarchyToolkit
             Selection.selectionChanged -= Refresh;
             EditorApplication.hierarchyChanged -= HierarchyChanged;
             Undo.undoRedoPerformed -= HierarchyChanged;
+            colors.Cache.Changed -= Refresh;
             colors.Changed -= Refresh;
             zebra.Changed -= Refresh;
             lines.Changed -= Refresh;
@@ -124,13 +126,13 @@ namespace Meganeura.HierarchyToolkit
             private readonly ZebraStripingFeature zebra;
             private readonly HierarchyLinesFeature lines;
             private readonly HierarchyLinesFeature.BranchCache branches;
-            private readonly ManualColorCache colors;
+            private readonly ManualColorFeature colors;
             private readonly SeparatorFeature separators;
             private readonly SeparatorLabel label;
             private readonly ActivationToggleControl activationControl;
 
             internal Decoration(HierarchyViewItem item, EntityId id, ZebraStripingFeature zebra, HierarchyLinesFeature lines,
-                HierarchyLinesFeature.BranchCache branches, ManualColorCache colors, SeparatorFeature separators, ActivationToggleFeature activation, ComponentMinimapFeature minimap)
+                HierarchyLinesFeature.BranchCache branches, ManualColorFeature colors, SeparatorFeature separators, ActivationToggleFeature activation, ComponentMinimapFeature minimap)
             {
                 this.item = item;
                 this.id = id;
@@ -181,14 +183,14 @@ namespace Meganeura.HierarchyToolkit
                     // Header replaces zebra. Selection remains native; manual color owns the header background.
                     var hasManualColor = colors.TryGetColor(id, out var separatorColor);
                     if (SeparatorFeature.ShouldDrawManualColor(selected, hasManualColor))
-                        ManualColorGradient.Draw(context, contentRect, separatorColor, colors.HierarchyIntensity(id));
+                        ManualColorGradient.Draw(context, contentRect, separatorColor, colors.Cache.HierarchyIntensity(id));
                     else if (SeparatorFeature.ShouldDrawBackground(selected, hasManualColor))
                         DrawBackground(context.painter2D, contentRect, SeparatorFeature.Background(separator, EditorGUIUtility.isProSkin));
                     return; // No hierarchy lines through headers, including their indentation.
                 }
                 zebra.Draw(context.painter2D, contentRect, id, index, selected);
                 if (!selected && colors.TryGetColor(id, out var manualColor))
-                    ManualColorGradient.Draw(context, contentRect, manualColor, colors.HierarchyIntensity(id));
+                    ManualColorGradient.Draw(context, contentRect, manualColor, colors.Cache.HierarchyIntensity(id));
                 var depth = model.GetDepth(node);
                 if (!lines.Enabled || item.View.Filtering) return;
                 if (branches.Dirty || branches.Count != model.Count)

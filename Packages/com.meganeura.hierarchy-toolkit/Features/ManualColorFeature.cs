@@ -9,12 +9,20 @@ namespace Meganeura.HierarchyToolkit
         private readonly ManualColorCache cache = new ManualColorCache();
         internal ManualColorCache Cache => cache;
         private Texture2D gradientTexture;
+        private bool enabled = true;
+        internal event Action Changed;
+
+        internal bool Enabled
+        {
+            get => enabled;
+            set { if (enabled == value) return; enabled = value; Changed?.Invoke(); }
+        }
 
         internal ManualColorFeature() => QuickStylePaletteSettings.instance.Changed += SettingsChanged;
 
         public void Draw(in HierarchyRowContext context)
         {
-            if (Event.current.type != EventType.Repaint || context.RowRect.width <= 0f
+            if (!Enabled || Event.current.type != EventType.Repaint || context.RowRect.width <= 0f
                 || Selection.Contains(context.EntityId) || !cache.TryGetColor(context.EntityId, out var color)) return;
             if (color.a <= 0f) return;
             EnsureGradientTexture();
@@ -47,6 +55,12 @@ namespace Meganeura.HierarchyToolkit
         {
             if (gradientTexture != null) UnityEngine.Object.DestroyImmediate(gradientTexture);
             gradientTexture = null;
+        }
+
+        internal bool TryGetColor(EntityId id, out Color color)
+        {
+            color = default;
+            return Enabled && cache.TryGetColor(id, out color);
         }
 
         public void Dispose()

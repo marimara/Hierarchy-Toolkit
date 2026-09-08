@@ -77,7 +77,7 @@ namespace Meganeura.HierarchyToolkit
             var rect = default(Rect);
             var visible = supported && layout.TryReserveRight(18f, out rect);
             style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
-            minimapControl.Refresh(supported && !visible ? Array.Empty<ComponentMinimapCache.Icon>() : minimap.GetIcons(target), ref layout);
+            minimapControl.Refresh(minimap.GetIcons(target), ref layout);
             if (!visible) return;
             style.left = rect.x;
             style.top = rect.y;
