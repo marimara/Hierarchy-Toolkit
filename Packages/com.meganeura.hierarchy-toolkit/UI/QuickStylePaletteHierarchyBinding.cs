@@ -71,7 +71,8 @@ namespace Meganeura.HierarchyToolkit
 
             private void PointerDown(PointerDownEvent evt)
             {
-                if (!enabled() || evt.button != 0 || !evt.altKey || item.Toggle.worldBound.Contains(evt.position)) return;
+                if (!enabled() || evt.button != 0 || !evt.altKey || item.Toggle.worldBound.Contains(evt.position)
+                    || ComponentMinimapControl.ContainsEventTarget(evt.target)) return;
                 var target = EditorUtility.EntityIdToObject(id) as GameObject;
                 if (!ManualColorOperations.IsSupported(target)) return;
                 var bound = item.RowContainer.worldBound;

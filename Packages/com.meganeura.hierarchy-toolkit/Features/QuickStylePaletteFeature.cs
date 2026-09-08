@@ -1,6 +1,4 @@
 using System;
-using UnityEditor;
-using UnityEngine;
 
 namespace Meganeura.HierarchyToolkit
 {
@@ -18,16 +16,8 @@ namespace Meganeura.HierarchyToolkit
             set { if (enabled == value) return; enabled = value; if (!enabled) QuickStylePalette.CancelQueuedOpen(); Changed?.Invoke(); }
         }
 
-        public void Draw(in HierarchyRowContext context)
-        {
-            if (!Enabled) return;
-            var current = Event.current;
-            if (current == null || current.type != EventType.MouseDown || current.button != 0 || !current.alt
-                || !context.RowRect.Contains(current.mousePosition)) return;
-            var target = EditorUtility.EntityIdToObject(context.EntityId) as GameObject;
-            if (!ManualColorOperations.IsSupported(target)) return;
-            QuickStylePalette.QueueOpen(target, GUIUtility.GUIToScreenRect(context.RowRect));
-        }
+        // UI Toolkit binding owns interaction so the picked element can take priority over the row.
+        public void Draw(in HierarchyRowContext context) { }
 
         public void Dispose()
         {

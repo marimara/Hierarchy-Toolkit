@@ -251,6 +251,33 @@ Separators keep their existing dedicated background behavior unless explicitly s
 - Built-in Unity icons and custom project icons should coexist in the same browser, with a clear distinction where useful.
 - Selecting a custom icon applies it through the existing Manual Icons system.
 
+### Palette Close
+
+- The Quick Style Palette must provide an explicit close button in its window/header.
+- The close control is separate from styling reset actions.
+- The `X` inside the color section continues to mean Clear/Reset Color.
+- The `X` inside the icon section continues to mean Clear/Reset Icon.
+- Closing the palette must not change any color or icon state.
+
+### Interaction Priority with Component Minimap
+
+Alt-click interactions must respect the element actually under the pointer.
+
+If Alt-click occurs over a Component Minimap icon:
+
+- open only the Component Popup Inspector
+- do not also open the Quick Style Palette
+- do not change color/icon styling
+- do not let the row-level Alt-click handler consume or duplicate the minimap interaction
+
+The Quick Style Palette should open only when Alt-click targets the normal GameObject row area rather than an interactive Hierarchy Toolkit control.
+
+Component Minimap interaction has priority over the row-level Quick Style Palette interaction.
+
+Use the actual UI Toolkit picked element / event target or ancestor relationship to distinguish these cases.
+
+Do not rely only on the GameObject row being hovered.
+
 ## Out of Scope
 
 - Automatic styling rules.

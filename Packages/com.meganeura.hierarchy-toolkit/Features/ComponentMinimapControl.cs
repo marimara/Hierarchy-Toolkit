@@ -15,6 +15,13 @@ namespace Meganeura.HierarchyToolkit
 
         internal void Bind(GameObject value) => target = value;
 
+        internal static bool ContainsEventTarget(IEventHandler eventTarget)
+        {
+            for (var element = eventTarget as VisualElement; element != null; element = element.parent)
+                if (element is ComponentMinimapControl) return true;
+            return false;
+        }
+
         internal static Component ResolveComponent(GameObject target, Type type)
         {
             if (!ComponentMinimapCache.IsSupported(target) || type == null) return null;

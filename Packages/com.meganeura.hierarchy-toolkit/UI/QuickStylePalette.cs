@@ -11,6 +11,7 @@ namespace Meganeura.HierarchyToolkit
         private const float Cell = 28f;
         private const int IconColumns = 10;
         private static readonly int DragControlHash = "HierarchyToolkitQuickStylePaletteDrag".GetHashCode();
+        private static readonly GUIContent CloseContent = new("×", "Close the palette without changing styling");
 
         private static QuickStylePalette current;
         private static GameObject queuedTarget;
@@ -77,14 +78,15 @@ namespace Meganeura.HierarchyToolkit
         public override void OnGUI(Rect rect)
         {
             EnsureStyle();
-            HandleDrag();
+            if (DrawHeader()) return;
             DrawColors();
             DrawIcons();
         }
 
-        private void HandleDrag()
+        private bool DrawHeader()
         {
-            var dragRect = new Rect(Padding, 0f, editorWindow.position.width - Padding * 2f, DragHeight);
+            var closeRect = new Rect(editorWindow.position.width - Padding - DragHeight, 0f, DragHeight, DragHeight);
+            var dragRect = new Rect(Padding, 0f, closeRect.x - Padding, DragHeight);
             GUI.Label(dragRect, new GUIContent("•••", "Drag the palette"), EditorStyles.centeredGreyMiniLabel);
             var currentEvent = Event.current;
             var controlId = GUIUtility.GetControlID(DragControlHash, FocusType.Passive, dragRect);
@@ -108,6 +110,10 @@ namespace Meganeura.HierarchyToolkit
                     currentEvent.Use();
                     break;
             }
+
+            if (!GUI.Button(closeRect, CloseContent, EditorStyles.miniButton)) return false;
+            Close();
+            return true;
         }
 
         private void DrawColors()

@@ -60,15 +60,30 @@ namespace Meganeura.HierarchyToolkit
         [MenuItem(IsolateShortcut, false, 33)] private static void ToggleIsolateShortcut() => Toggle(HierarchyShortcut.IsolateHoveredBranch);
         [MenuItem(IsolateShortcut, true)] private static bool CheckIsolateShortcut() => Check(IsolateShortcut, HierarchyShortcut.IsolateHoveredBranch);
 
-        [MenuItem(DisableToolkit, false, 50)] private static void ToggleToolkit() => HierarchyToolkitPreferences.ToolkitEnabled = !HierarchyToolkitPreferences.ToolkitEnabled;
+        [MenuItem(DisableToolkit, false, 50)]
+        private static void ToggleToolkit()
+        {
+            HierarchyToolkitPreferences.ToolkitEnabled = !HierarchyToolkitPreferences.ToolkitEnabled;
+            HierarchyToolkitTogglePopup.ShowAtPointer();
+        }
         [MenuItem(DisableToolkit, true)] private static bool CheckToolkit()
         {
             Menu.SetChecked(DisableToolkit, !HierarchyToolkitPreferences.ToolkitEnabled);
             return true;
         }
 
-        private static void Toggle(HierarchyFeature feature) => HierarchyToolkitPreferences.SetFeature(feature, !HierarchyToolkitPreferences.IsFeatureSelected(feature));
-        private static void Toggle(HierarchyShortcut shortcut) => HierarchyToolkitPreferences.SetShortcut(shortcut, !HierarchyToolkitPreferences.IsShortcutSelected(shortcut));
+        private static void Toggle(HierarchyFeature feature)
+        {
+            HierarchyToolkitPreferences.SetFeature(feature, !HierarchyToolkitPreferences.IsFeatureSelected(feature));
+            HierarchyToolkitTogglePopup.ShowAtPointer();
+        }
+
+        private static void Toggle(HierarchyShortcut shortcut)
+        {
+            HierarchyToolkitPreferences.SetShortcut(shortcut, !HierarchyToolkitPreferences.IsShortcutSelected(shortcut));
+            HierarchyToolkitTogglePopup.ShowAtPointer();
+        }
+
         private static bool Check(string path, HierarchyFeature feature) { Menu.SetChecked(path, HierarchyToolkitPreferences.IsFeatureSelected(feature)); return true; }
         private static bool Check(string path, HierarchyShortcut shortcut) { Menu.SetChecked(path, HierarchyToolkitPreferences.IsShortcutSelected(shortcut)); return true; }
     }

@@ -69,6 +69,23 @@ namespace Meganeura.HierarchyToolkit.Tests
         }
 
         [Test]
+        public void MinimapEventTargetDetectionUsesPickedElementAncestors()
+        {
+            var row = new VisualElement();
+            var minimap = new ComponentMinimapControl();
+            var icon = new Image();
+            var iconChild = new VisualElement();
+            row.Add(minimap);
+            minimap.Add(icon);
+            icon.Add(iconChild);
+
+            Assert.That(ComponentMinimapControl.ContainsEventTarget(icon), Is.True);
+            Assert.That(ComponentMinimapControl.ContainsEventTarget(iconChild), Is.True);
+            Assert.That(ComponentMinimapControl.ContainsEventTarget(row), Is.False);
+            Assert.That(ComponentMinimapControl.ContainsEventTarget(null), Is.False);
+        }
+
+        [Test]
         public void OpeningPreservesSelectionAndReplacementAndCloseDestroyEditors()
         {
             var first = target.AddComponent<BoxCollider>();
