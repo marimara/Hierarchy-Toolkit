@@ -216,7 +216,63 @@
 
 # The full Toolkit suite is optional unless explicitly required by Level 4.
 
+
+
+
+
+
+
+# \## MCP Efficiency
+
 # 
+
+# Minimize Unity MCP round trips.
+
+# 
+
+# For normal feature validation:
+
+# 
+
+# 1\. Perform one compilation request.
+
+# 2\. Perform one targeted test run containing all relevant targeted tests when possible.
+
+# 3\. Perform one Console inspection after validation.
+
+# 
+
+# Do not repeatedly poll compilation or test state.
+
+# 
+
+# Do not rerun successful tests.
+
+# 
+
+# Do not retry MCP operations unless:
+
+# \- the previous call failed technically, or
+
+# \- the result is genuinely required to diagnose an error caused by the current task.
+
+# 
+
+# When several targeted tests can be executed in one test run, batch them.
+
+# 
+
+# Do not spend time investigating unrelated Unity warnings or errors.
+
+# 
+
+# Prefer:
+
+# one compile + one test batch + one Console check
+
+# over multiple small MCP calls.
+
+
 
 # \## Final Report
 
@@ -239,4 +295,6 @@
 # \- manual verification required or completed
 
 # \- blockers
+
+
 

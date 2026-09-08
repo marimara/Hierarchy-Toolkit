@@ -15,6 +15,9 @@ namespace Meganeura.HierarchyToolkit
         internal static readonly ComponentMinimapFeature ComponentMinimap = new ComponentMinimapFeature();
         internal static readonly GameObjectBookmarkStore Bookmarks = GameObjectBookmarkStore.Open(GameObjectBookmarkStore.ProjectKey);
         private static readonly GameObjectBookmarkNavigation BookmarkNavigation = new GameObjectBookmarkNavigation(Bookmarks);
+        internal static readonly SceneFavoriteStore SceneFavorites = SceneFavoriteStore.Open(SceneFavoriteStore.ProjectKey);
+        internal static readonly SceneCatalog Scenes = new SceneCatalog();
+        private static readonly SceneSelectorHierarchyBinding SceneSelector = new SceneSelectorHierarchyBinding(Scenes, SceneFavorites);
         private static readonly VisualHierarchyBinding Visuals = new VisualHierarchyBinding(ZebraStriping, HierarchyLines, ManualColors.Cache, Separators, Activation, ComponentMinimap);
 
         static HierarchyToolkitBootstrap()
@@ -35,6 +38,9 @@ namespace Meganeura.HierarchyToolkit
         {
             BookmarkNavigation.Dispose();
             UnityEngine.Object.DestroyImmediate(Bookmarks);
+            SceneSelector.Dispose();
+            Scenes.Dispose();
+            UnityEngine.Object.DestroyImmediate(SceneFavorites);
             Visuals.Dispose();
             ComponentMinimap.Dispose();
             Separators.Dispose();

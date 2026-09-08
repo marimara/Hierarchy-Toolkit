@@ -68,6 +68,18 @@ Follow AGENTS.md and `Packages/com.meganeura.hierarchy-toolkit/Specs/HARNESS.md`
 - Do not repeat successful checks or reread unchanged files without a concrete reason.
 - Efficiency does not waive acceptance criteria or required harness checks.
 
+## Tool Efficiency
+
+Minimize Unity MCP calls.
+
+Batch targeted tests into one run when possible.
+
+Do not poll test execution repeatedly.
+
+Do not rerun passing tests.
+
+Do not run additional validation "for confidence" beyond HARNESS.md.
+
 ## Output
 
 Report concisely:
