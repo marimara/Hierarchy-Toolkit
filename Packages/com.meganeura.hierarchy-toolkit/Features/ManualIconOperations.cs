@@ -17,6 +17,12 @@ namespace Meganeura.HierarchyToolkit
         internal static void Apply(GameObject[] targets, UnityEngine.Object icon)
         {
             var reference = icon != null ? HierarchyIconReference.FromAsset(icon) : null;
+            ApplyReference(targets, reference);
+        }
+
+        internal static void ApplyReference(GameObject[] targets, string reference)
+        {
+            if (!string.IsNullOrEmpty(reference)) reference = HierarchyIconReference.Normalize(reference);
             ManualColorOperations.ApplyMetadata(targets, reference != null,
                 reference != null ? "Set Hierarchy Icon" : "Clear Hierarchy Icon",
                 (store, target) => { if (reference != null) store.SetIcon(target, reference); else store.ClearIcon(target); });

@@ -184,6 +184,8 @@ namespace Meganeura.HierarchyToolkit
                     return; // No hierarchy lines through headers, including their indentation.
                 }
                 zebra.Draw(context.painter2D, contentRect, id, index, selected);
+                if (!selected && colors.TryGetColor(id, out var manualColor))
+                    ManualColorGradient.Draw(context, contentRect, manualColor);
                 var depth = model.GetDepth(node);
                 if (!lines.Enabled || item.View.Filtering) return;
                 if (branches.Dirty || branches.Count != model.Count)

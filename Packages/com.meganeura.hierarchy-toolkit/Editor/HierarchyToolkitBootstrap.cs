@@ -8,6 +8,7 @@ namespace Meganeura.HierarchyToolkit
         private static readonly ManualColorFeature ManualColors = new ManualColorFeature();
 
         private static readonly ManualIconFeature ManualIcons = new ManualIconFeature();
+        private static readonly QuickStylePaletteFeature QuickStylePalette = new QuickStylePaletteFeature();
         internal static readonly ZebraStripingFeature ZebraStriping = new ZebraStripingFeature(ManualColors.Cache);
         internal static readonly HierarchyLinesFeature HierarchyLines = new HierarchyLinesFeature();
         internal static readonly SeparatorFeature Separators = new SeparatorFeature();
@@ -34,6 +35,7 @@ namespace Meganeura.HierarchyToolkit
             HierarchyDrawer.Register(ManualIcons);
             HierarchyDrawer.Register(Activation);
             HierarchyDrawer.Register(ComponentMinimap);
+            HierarchyDrawer.Register(QuickStylePalette);
             AssemblyReloadEvents.beforeAssemblyReload += Shutdown;
             EditorApplication.quitting += Shutdown;
         }
@@ -54,6 +56,7 @@ namespace Meganeura.HierarchyToolkit
             Separators.Dispose();
             ManualColors.Dispose();
             ManualIcons.Dispose();
+            QuickStylePalette.Dispose();
             HierarchyDrawer.Shutdown();
         }
     }

@@ -22,12 +22,23 @@ namespace Meganeura.HierarchyToolkit
 
         internal static bool TryParentNewObject(GameObject target)
         {
-            if (!IsSupportedNewObject(target) || target.transform.parent != null) return false;
-            var store = SceneMetadataStore.Find(target.scene);
-            if (store == null || !store.TryGetDefaultParent(target.scene, out var parent)
-                || parent == target || parent.transform.IsChildOf(target.transform)) return false;
+            if (!IsSupportedNewObject(target))
+                return false;
 
-            Undo.SetTransformParent(target.transform, parent.transform, "Parent New GameObject Under Default Parent");
+            var store = SceneMetadataStore.Find(target.scene);
+
+            if (store == null
+                || !store.TryGetDefaultParent(target.scene, out var parent)
+                || parent == target
+                || parent.transform.IsChildOf(target.transform)
+                || target.transform.parent == parent.transform)
+                return false;
+
+            Undo.SetTransformParent(
+                target.transform,
+                parent.transform,
+                "Parent New GameObject Under Default Parent");
+
             return true;
         }
 

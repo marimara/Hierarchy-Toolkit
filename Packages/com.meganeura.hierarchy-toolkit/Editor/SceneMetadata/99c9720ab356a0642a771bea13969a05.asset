@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: 99c9720ab356a0642a771bea13969a05
   m_EditorClassIdentifier: Meganeura.HierarchyToolkit.Editor::Meganeura.HierarchyToolkit.SceneMetadataStore
   sceneGuid: 99c9720ab356a0642a771bea13969a05
-  defaultParentObjectId: GlobalObjectId_V1-2-99c9720ab356a0642a771bea13969a05-1825602126-0
+  defaultParentObjectId: 
   entries:
   - objectId: GlobalObjectId_V1-2-99c9720ab356a0642a771bea13969a05-383363660-0
     customColor: {r: 1, g: 0, b: 0.0034582615, a: 1}
@@ -55,23 +55,75 @@ MonoBehaviour:
       textColor: {r: 0, g: 0.09589815, b: 1, a: 1}
       bold: 1
   - objectId: GlobalObjectId_V1-2-99c9720ab356a0642a771bea13969a05-1332687958-0
-    customColor: {r: 0, g: 0, b: 0, a: 0}
+    customColor: {r: 0.88, g: 0.25, b: 0.28, a: 1}
     customIconReference: 
-    hasColorOverride: 0
+    hasColorOverride: 1
     hasIconOverride: 0
     separator:
       enabled: 1
       displayText: ---------ASSETS------------
       hasBackgroundColor: 1
-      backgroundColor: {r: 0.20672423, g: 1, b: 0, a: 0.9019608}
+      backgroundColor: {r: 0.20672423, g: 1, b: 0, a: 1}
       hasTextColor: 1
-      textColor: {r: 1, g: 0, b: 0.8522669, a: 1}
+      textColor: {r: 1, g: 0.06894713, b: 0, a: 1}
       bold: 1
   - objectId: GlobalObjectId_V1-2-99c9720ab356a0642a771bea13969a05-452820448-0
     customColor: {r: 0, g: 0.4638554, b: 1, a: 1}
     customIconReference: asset:0000000000000000f000000000000000:10913
     hasColorOverride: 1
     hasIconOverride: 1
+    separator:
+      enabled: 0
+      displayText: 
+      hasBackgroundColor: 0
+      backgroundColor: {r: 0, g: 0, b: 0, a: 0}
+      hasTextColor: 0
+      textColor: {r: 0, g: 0, b: 0, a: 0}
+      bold: 0
+  - objectId: GlobalObjectId_V1-2-99c9720ab356a0642a771bea13969a05-702091293381683274-5009548235191550890
+    customColor: {r: 0.39, g: 0.68, b: 0.22, a: 1}
+    customIconReference: asset:0000000000000000f000000000000000:10901
+    hasColorOverride: 1
+    hasIconOverride: 1
+    separator:
+      enabled: 0
+      displayText: 
+      hasBackgroundColor: 0
+      backgroundColor: {r: 0, g: 0, b: 0, a: 0}
+      hasTextColor: 0
+      textColor: {r: 0, g: 0, b: 0, a: 0}
+      bold: 0
+  - objectId: GlobalObjectId_V1-2-99c9720ab356a0642a771bea13969a05-1398918919346582983-5009548235191550890
+    customColor: {r: 0.39, g: 0.68, b: 0.22, a: 1}
+    customIconReference: 
+    hasColorOverride: 1
+    hasIconOverride: 0
+    separator:
+      enabled: 0
+      displayText: 
+      hasBackgroundColor: 0
+      backgroundColor: {r: 0, g: 0, b: 0, a: 0}
+      hasTextColor: 0
+      textColor: {r: 0, g: 0, b: 0, a: 0}
+      bold: 0
+  - objectId: GlobalObjectId_V1-2-99c9720ab356a0642a771bea13969a05-174746964160518455-5009548235191550890
+    customColor: {r: 0.39, g: 0.68, b: 0.22, a: 1}
+    customIconReference: 
+    hasColorOverride: 1
+    hasIconOverride: 0
+    separator:
+      enabled: 0
+      displayText: 
+      hasBackgroundColor: 0
+      backgroundColor: {r: 0, g: 0, b: 0, a: 0}
+      hasTextColor: 0
+      textColor: {r: 0, g: 0, b: 0, a: 0}
+      bold: 0
+  - objectId: GlobalObjectId_V1-2-99c9720ab356a0642a771bea13969a05-5834103521681230134-5009548235191550890
+    customColor: {r: 0.39, g: 0.68, b: 0.22, a: 1}
+    customIconReference: 
+    hasColorOverride: 1
+    hasIconOverride: 0
     separator:
       enabled: 0
       displayText: 

@@ -52,6 +52,25 @@ namespace Meganeura.HierarchyToolkit
                 (store, target) => { if (color.HasValue) store.SetColor(target, color.Value); else store.ClearColor(target); });
         }
 
+        internal static GameObject[] ResolveRecursiveTargets(GameObject root)
+        {
+            if (!IsSupported(root)) return System.Array.Empty<GameObject>();
+            var scene = root.scene;
+            var result = new List<GameObject>();
+            var pending = new Stack<Transform>();
+            pending.Push(root.transform);
+            while (pending.Count > 0)
+            {
+                var transform = pending.Pop();
+                var target = transform.gameObject;
+                if (target.scene != scene) continue;
+                if (IsSupported(target)) result.Add(target);
+                for (var i = transform.childCount - 1; i >= 0; --i)
+                    pending.Push(transform.GetChild(i));
+            }
+            return result.ToArray();
+        }
+
         internal static void ApplyMetadata(GameObject[] targets, bool create, string label,
             System.Action<SceneMetadataStore, GameObject> mutation)
         {
