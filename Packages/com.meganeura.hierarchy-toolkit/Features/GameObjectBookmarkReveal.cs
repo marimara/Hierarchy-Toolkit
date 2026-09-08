@@ -19,13 +19,7 @@ namespace Meganeura.HierarchyToolkit
             window.SetSearchText(string.Empty);
             var handler = source.GetOrCreateNodeTypeHandler<HierarchyGameObjectHandler>();
             var node = handler.GetOrCreateNode(target);
-            // Include the scene node as well as Transform ancestors.
-            var parent = source.GetParent(node);
-            while (parent != HierarchyNode.Null && parent != source.Root)
-            {
-                view.Expand(parent);
-                parent = source.GetParent(parent);
-            }
+            HierarchyNavigation.ExpandAncestors(view, node);
             view.Update();
             Selection.activeGameObject = target;
             view.Frame(node);
