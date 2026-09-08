@@ -1,4 +1,5 @@
 using NUnit.Framework;
+using System.Collections.Generic;
 using UnityEditor;
 using UnityEditor.SceneManagement;
 using UnityEngine;
@@ -92,6 +93,22 @@ namespace Meganeura.HierarchyToolkit.Tests
             var icons = new[] { "builtin:Folder Icon", "asset:abc:12" };
             Assert.That(QuickStylePaletteSettings.MatchingReferenceIndex(icons, "asset:abc:12"), Is.EqualTo(1));
             Assert.That(QuickStylePaletteSettings.MatchingReferenceIndex(icons, "builtin:Light Icon"), Is.EqualTo(-1));
+        }
+
+        [Test]
+        public void BuiltInIconCatalogueIsCachedWithUniqueResolvableNames()
+        {
+            BuiltInIconProvider.EnsureLoaded();
+            var first = BuiltInIconProvider.Icons;
+            BuiltInIconProvider.EnsureLoaded();
+            Assert.That(BuiltInIconProvider.Icons, Is.SameAs(first));
+            Assert.That(first, Is.Not.Empty, BuiltInIconProvider.FailureMessage);
+            var names = new HashSet<string>();
+            for (var i = 0; i < first.Count; ++i)
+            {
+                Assert.That(names.Add(first[i].Name), Is.True);
+                Assert.That(first[i].Texture, Is.Not.Null);
+            }
         }
     }
 }

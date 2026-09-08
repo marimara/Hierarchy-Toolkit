@@ -151,7 +151,7 @@ namespace Meganeura.HierarchyToolkit
                 DrawIconButton(index++, new GUIContent(icon.Texture, icon.Tooltip),
                     () => ManualIconOperations.ApplyReference(targets, icon.Reference));
             }
-            DrawIconButton(index++, new GUIContent("+", "Choose and apply a one-off custom project icon"), OpenCustomIconPicker);
+            DrawIconButton(index++, new GUIContent("+", "Open the Icon Library"), OpenIconLibrary);
             var currentReference = ManualIconOperations.InitialReference(target);
             GUI.enabled = !string.IsNullOrEmpty(currentReference);
             DrawIconButton(index, new GUIContent("☆", "Add or remove the current icon from favorites"), () =>
@@ -177,10 +177,9 @@ namespace Meganeura.HierarchyToolkit
             Close();
         }
 
-        private void OpenCustomIconPicker()
+        private void OpenIconLibrary()
         {
-            var initial = ManualIconOperations.InitialIcon(target);
-            EditorApplication.delayCall += () => ManualIconPicker.Open(targets, initial);
+            EditorApplication.delayCall += () => IconLibraryWindow.Open(targets);
         }
 
         private void OpenCustomColorPicker()

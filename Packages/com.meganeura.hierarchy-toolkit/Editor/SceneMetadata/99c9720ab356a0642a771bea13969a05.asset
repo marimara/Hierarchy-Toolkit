@@ -82,7 +82,7 @@ MonoBehaviour:
       bold: 0
   - objectId: GlobalObjectId_V1-2-99c9720ab356a0642a771bea13969a05-702091293381683274-5009548235191550890
     customColor: {r: 0.52, g: 0.25, b: 0.76, a: 1}
-    customIconReference: asset:0000000000000000f000000000000000:10901
+    customIconReference: builtin:Animation.LastKey@2x
     hasColorOverride: 1
     hasIconOverride: 1
     separator:
@@ -692,7 +692,7 @@ MonoBehaviour:
       textColor: {r: 0, g: 0, b: 0, a: 0}
       bold: 0
   - objectId: GlobalObjectId_V1-2-99c9720ab356a0642a771bea13969a05-97953173-0
-    customColor: {r: 0.52, g: 0.25, b: 0.76, a: 1}
+    customColor: {r: 0.2, g: 0.65, b: 0.39, a: 1}
     customIconReference: 
     hasColorOverride: 1
     hasIconOverride: 0
@@ -705,7 +705,7 @@ MonoBehaviour:
       textColor: {r: 0, g: 0, b: 0, a: 0}
       bold: 0
   - objectId: GlobalObjectId_V1-2-99c9720ab356a0642a771bea13969a05-1396295666-0
-    customColor: {r: 0.52, g: 0.25, b: 0.76, a: 1}
+    customColor: {r: 0.2, g: 0.65, b: 0.39, a: 1}
     customIconReference: 
     hasColorOverride: 1
     hasIconOverride: 0
@@ -718,7 +718,7 @@ MonoBehaviour:
       textColor: {r: 0, g: 0, b: 0, a: 0}
       bold: 0
   - objectId: GlobalObjectId_V1-2-99c9720ab356a0642a771bea13969a05-1246210686-0
-    customColor: {r: 0.52, g: 0.25, b: 0.76, a: 1}
+    customColor: {r: 0.2, g: 0.65, b: 0.39, a: 1}
     customIconReference: 
     hasColorOverride: 1
     hasIconOverride: 0

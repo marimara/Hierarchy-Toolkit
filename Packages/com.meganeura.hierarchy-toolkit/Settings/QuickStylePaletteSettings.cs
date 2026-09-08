@@ -27,12 +27,14 @@ namespace Meganeura.HierarchyToolkit
             "builtin:d_UnityEditor.ConsoleWindow", "builtin:d_SceneViewTools",
             "builtin:Favorite", "builtin:Settings"
         };
+        [SerializeField] private List<string> customIconLibrary = new();
         [SerializeField, Range(0f, 1f)] private float gradientStartAlpha = 1f;
         [SerializeField, Range(0f, 1f)] private float gradientEndAlpha;
 
         internal event Action Changed;
         internal IReadOnlyList<Color> ColorPresets => colorPresets;
         internal IReadOnlyList<string> IconPresets => iconPresets;
+        internal IReadOnlyList<string> CustomIconLibrary => customIconLibrary ??= new List<string>();
         internal float GradientStartAlpha => Mathf.Clamp01(gradientStartAlpha);
         internal float GradientEndAlpha => Mathf.Clamp01(gradientEndAlpha);
 
@@ -54,6 +56,25 @@ namespace Meganeura.HierarchyToolkit
             if (index >= 0) Change("Remove Hierarchy Icon Favorite", () => iconPresets.RemoveAt(index));
             else Change("Add Hierarchy Icon Favorite", () => iconPresets.Add(reference));
             return index < 0;
+        }
+
+        internal bool AddCustomIcon(Sprite sprite)
+        {
+            if (sprite == null || !AssetDatabase.Contains(sprite)) return false;
+            customIconLibrary ??= new List<string>();
+            var reference = HierarchyIconReference.FromAsset(sprite);
+            if (MatchingReferenceIndex(customIconLibrary, reference) >= 0) return false;
+            Change("Add Hierarchy Custom Icon", () => customIconLibrary.Add(reference));
+            return true;
+        }
+
+        internal bool RemoveCustomIcon(string reference)
+        {
+            customIconLibrary ??= new List<string>();
+            var index = MatchingReferenceIndex(customIconLibrary, reference);
+            if (index < 0) return false;
+            Change("Remove Hierarchy Custom Icon", () => customIconLibrary.RemoveAt(index));
+            return true;
         }
 
         internal static int MatchingColorIndex(IReadOnlyList<Color> colors, Color color)

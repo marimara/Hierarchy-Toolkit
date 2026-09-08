@@ -33,5 +33,7 @@ MonoBehaviour:
   - builtin:d_SceneViewTools
   - builtin:Favorite
   - builtin:Settings
+  - builtin:Animation.LastKey@2x
+  customIconLibrary: []
   gradientStartAlpha: 1
   gradientEndAlpha: 0

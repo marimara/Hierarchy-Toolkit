@@ -69,6 +69,34 @@ namespace Meganeura.HierarchyToolkit.Tests
         }
 
         [Test]
+        public void CustomSpriteLibraryPreventsDuplicatesAndMissingEntryCanBeRemoved()
+        {
+            var texture = CreateIcon();
+            var sprite = Sprite.Create(texture, new Rect(0, 0, 4, 4), Vector2.zero);
+            sprite.name = "Library Sprite";
+            AssetDatabase.AddObjectToAsset(sprite, texture);
+            AssetDatabase.SaveAssetIfDirty(texture);
+            var reference = HierarchyIconReference.FromAsset(sprite);
+            var settings = QuickStylePaletteSettings.instance;
+            settings.RemoveCustomIcon(reference);
+            try
+            {
+                Assert.That(settings.AddCustomIcon(sprite), Is.True);
+                Assert.That(settings.AddCustomIcon(sprite), Is.False);
+                Assert.That(QuickStylePaletteSettings.MatchingReferenceIndex(settings.CustomIconLibrary, reference),
+                    Is.GreaterThanOrEqualTo(0));
+                Assert.That(AssetDatabase.DeleteAsset(AssetDatabase.GetAssetPath(texture)), Is.True);
+                Assert.That(HierarchyIconReference.Resolve(reference), Is.Null);
+                Assert.That(settings.RemoveCustomIcon(reference), Is.True);
+                Assert.That(settings.RemoveCustomIcon(reference), Is.False);
+            }
+            finally
+            {
+                settings.RemoveCustomIcon(reference);
+            }
+        }
+
+        [Test]
         public void LegacyIconMetadataMigratesAndPersistsWithoutChangingColor()
         {
             var texture = CreateIcon();
