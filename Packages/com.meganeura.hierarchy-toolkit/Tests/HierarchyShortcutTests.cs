@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using NUnit.Framework;
+using Unity.Hierarchy;
 using Unity.Hierarchy.Editor;
 using UnityEditor;
 using UnityEditor.SceneManagement;
@@ -79,6 +80,45 @@ namespace Meganeura.HierarchyToolkit.Tests
                 Assert.That(Selection.objects, Is.EqualTo(selectionBefore));
             }
             finally { window.Close(); }
+        }
+
+        [UnityTest]
+        public IEnumerator HoverTargetSurvivesRowRebindingAcrossRepeatedToggles()
+        {
+            var window = ScriptableObject.CreateInstance<HierarchyWindow>();
+            window.Show();
+            var shortcuts = new HierarchyShortcuts();
+            try
+            {
+                yield return null;
+                var view = window.View;
+                var handler = view.Source.GetOrCreateNodeTypeHandler<HierarchyGameObjectHandler>();
+                var node = handler.GetOrCreateNode(targetParent);
+                view.Collapse(node);
+                view.Update();
+                yield return null;
+
+                HierarchyViewItem targetItem = null;
+                window.rootVisualElement.Query<HierarchyViewItem>().ForEach(item =>
+                {
+                    if (item.Node == node) targetItem = item;
+                });
+                Assert.That(targetItem, Is.Not.Null);
+
+                shortcuts.SetHovered(window, targetItem.worldBound.center);
+                for (var press = 0; press < 3; press++)
+                {
+                    Assert.That(shortcuts.TryGetHoveredTarget(out var hovered, out _, out _), Is.True);
+                    Assert.That(hovered, Is.EqualTo(targetParent));
+                    Assert.That(shortcuts.TryToggleHovered(), Is.True);
+                    Assert.That(view.IsExpanded(node), Is.EqualTo(press % 2 == 0));
+                }
+            }
+            finally
+            {
+                shortcuts.Dispose();
+                window.Close();
+            }
         }
 
         [UnityTest]

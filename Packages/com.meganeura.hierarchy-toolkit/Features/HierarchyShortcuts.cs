@@ -16,7 +16,8 @@ namespace Meganeura.HierarchyToolkit
 
         private readonly Dictionary<HierarchyViewItem, RowBinding> rows = new();
         private HierarchyWindow hoveredWindow;
-        private HierarchyViewItem hoveredItem;
+        private Vector2 hoveredPosition;
+        private bool hasHoveredPosition;
 
         internal HierarchyShortcuts()
         {
@@ -32,20 +33,26 @@ namespace Meganeura.HierarchyToolkit
         [Shortcut(ToggleShortcutId, typeof(HierarchyShortcuts), KeyCode.E)]
         private static void ToggleHovered(ShortcutArguments arguments)
         {
-            if (arguments.context is HierarchyShortcuts shortcuts
-                && shortcuts.TryGetHoveredTarget(out _, out var view, out var node)
-                && !IsEditingText(shortcuts.hoveredWindow))
-                HierarchyNavigation.ToggleExpanded(view, node);
+            if (arguments.context is HierarchyShortcuts shortcuts)
+                shortcuts.TryToggleHovered();
         }
 
         [Shortcut(IsolateShortcutId, typeof(HierarchyShortcuts), KeyCode.E, ShortcutModifiers.Shift)]
         private static void IsolateHovered(ShortcutArguments arguments)
         {
-            if (arguments.context is HierarchyShortcuts shortcuts
-                && shortcuts.TryGetHoveredTarget(out _, out var view, out var node)
-                && !IsEditingText(shortcuts.hoveredWindow))
-                HierarchyNavigation.Isolate(view, node);
+            if (arguments.context is HierarchyShortcuts shortcuts)
+                shortcuts.TryIsolateHovered();
         }
+
+        internal bool TryToggleHovered()
+            => !IsEditingText(hoveredWindow)
+               && TryGetHoveredTarget(out _, out var view, out var node)
+               && HierarchyNavigation.ToggleExpanded(view, node);
+
+        internal bool TryIsolateHovered()
+            => !IsEditingText(hoveredWindow)
+               && TryGetHoveredTarget(out _, out var view, out var node)
+               && HierarchyNavigation.Isolate(view, node);
 
         private void BindExisting()
         {
@@ -63,7 +70,6 @@ namespace Meganeura.HierarchyToolkit
         private void UnbindItem(HierarchyWindow window, HierarchyView view, HierarchyViewItem item)
         {
             if (rows.Remove(item, out var binding)) binding.Dispose();
-            ClearHovered(item);
         }
 
         private void UnbindView(HierarchyWindow window, HierarchyView view)
@@ -72,27 +78,36 @@ namespace Meganeura.HierarchyToolkit
             if (hoveredWindow == window) ClearHovered();
         }
 
-        private void SetHovered(HierarchyWindow window, HierarchyViewItem item)
+        internal void SetHovered(HierarchyWindow window, Vector2 pointerPosition)
         {
             hoveredWindow = window;
-            hoveredItem = item;
+            hoveredPosition = pointerPosition;
+            hasHoveredPosition = true;
         }
 
-        private void ClearHovered(HierarchyViewItem item = null)
+        private void ClearHovered(HierarchyWindow window = null)
         {
-            if (item != null && hoveredItem != item) return;
+            if (window != null && hoveredWindow != window) return;
             hoveredWindow = null;
-            hoveredItem = null;
+            hasHoveredPosition = false;
         }
 
-        private bool TryGetHoveredTarget(out GameObject target, out HierarchyView view, out HierarchyNode node)
+        internal bool TryGetHoveredTarget(out GameObject target, out HierarchyView view, out HierarchyNode node)
         {
             target = null;
-            view = hoveredItem?.View;
-            node = hoveredItem?.Node ?? HierarchyNode.Null;
-            if (hoveredWindow == null || hoveredItem == null || hoveredItem.panel == null
-                || view?.Source == null || !view.Source.IsCreated
-                || hoveredItem.Handler is not HierarchyGameObjectHandler handler)
+            view = null;
+            node = HierarchyNode.Null;
+            var panel = hoveredWindow?.rootVisualElement?.panel;
+            if (!hasHoveredPosition || panel == null) return false;
+
+            var picked = panel.Pick(hoveredPosition);
+            var item = picked as HierarchyViewItem ?? picked?.GetFirstAncestorOfType<HierarchyViewItem>();
+            if (item == null || item.panel != panel || item.Handler is not HierarchyGameObjectHandler handler)
+                return false;
+
+            view = item.View;
+            node = item.Node;
+            if (view?.Source == null || !view.Source.IsCreated || node == HierarchyNode.Null)
                 return false;
 
             target = handler.GetGameObject(node);
@@ -134,17 +149,19 @@ namespace Meganeura.HierarchyToolkit
                 this.window = window;
                 this.item = item;
                 item.RegisterCallback<PointerEnterEvent>(PointerEnter);
+                item.RegisterCallback<PointerMoveEvent>(PointerMove);
                 item.RegisterCallback<PointerLeaveEvent>(PointerLeave);
             }
 
-            private void PointerEnter(PointerEnterEvent evt) => owner.SetHovered(window, item);
-            private void PointerLeave(PointerLeaveEvent evt) => owner.ClearHovered(item);
+            private void PointerEnter(PointerEnterEvent evt) => owner.SetHovered(window, evt.position);
+            private void PointerMove(PointerMoveEvent evt) => owner.SetHovered(window, evt.position);
+            private void PointerLeave(PointerLeaveEvent evt) => owner.ClearHovered(window);
 
             public void Dispose()
             {
                 item.UnregisterCallback<PointerEnterEvent>(PointerEnter);
+                item.UnregisterCallback<PointerMoveEvent>(PointerMove);
                 item.UnregisterCallback<PointerLeaveEvent>(PointerLeave);
-                owner.ClearHovered(item);
             }
         }
     }
