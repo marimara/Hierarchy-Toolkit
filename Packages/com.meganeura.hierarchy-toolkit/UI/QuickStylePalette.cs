@@ -7,15 +7,10 @@ namespace Meganeura.HierarchyToolkit
     internal sealed class QuickStylePalette : PopupWindowContent
     {
         private const float Padding = 6f;
+        private const float DragHeight = 14f;
         private const float Cell = 28f;
         private const int IconColumns = 10;
-        private static readonly IconPreset[] IconPresets =
-        {
-            new("Folder Icon", "Folder"), new("Camera Icon", "Camera"), new("Light Icon", "Light"),
-            new("AudioSource Icon", "Audio"), new("Canvas Icon", "Canvas"), new("Prefab Icon", "Prefab"),
-            new("d_UnityEditor.ConsoleWindow", "Console"), new("d_SceneViewTools", "Tools"),
-            new("Favorite", "Favorite"), new("Settings", "Settings")
-        };
+        private static readonly int DragControlHash = "HierarchyToolkitQuickStylePaletteDrag".GetHashCode();
 
         private static QuickStylePalette current;
         private static GameObject queuedTarget;
@@ -25,16 +20,20 @@ namespace Meganeura.HierarchyToolkit
         private readonly Rect anchor;
         private readonly List<ResolvedIcon> icons = new();
         private GUIStyle iconButton;
+        private bool dragging;
+        private Vector2 dragOffset;
 
         private QuickStylePalette(GameObject target, Rect anchor)
         {
             this.target = target;
             this.anchor = anchor;
             targets = ManualColorOperations.ResolveTargets(target, Selection.gameObjects);
-            for (var i = 0; i < IconPresets.Length; ++i)
+            var presets = QuickStylePaletteSettings.instance.IconPresets;
+            for (var i = 0; i < presets.Count; ++i)
             {
-                var texture = EditorGUIUtility.FindTexture(IconPresets[i].Name);
-                if (texture != null) icons.Add(new ResolvedIcon(IconPresets[i], texture));
+                var asset = HierarchyIconReference.Resolve(presets[i]);
+                var texture = asset is Sprite sprite ? sprite.texture : asset as Texture;
+                if (texture != null) icons.Add(new ResolvedIcon(presets[i], texture));
             }
         }
 
@@ -66,10 +65,10 @@ namespace Meganeura.HierarchyToolkit
 
         public override Vector2 GetWindowSize()
         {
-            var colorCells = QuickStylePaletteSettings.instance.ColorPresets.Count + 2;
+            var colorCells = QuickStylePaletteSettings.instance.ColorPresets.Count + 4;
             var width = Mathf.Max(IconColumns, colorCells) * Cell + Padding * 2f;
-            var iconRows = Mathf.CeilToInt((icons.Count + 2) / (float)IconColumns);
-            return new Vector2(width, Padding * 2f + Cell * (1 + iconRows));
+            var iconRows = Mathf.CeilToInt((icons.Count + 3) / (float)IconColumns);
+            return new Vector2(width, Padding * 2f + DragHeight + Cell * (1 + iconRows));
         }
 
         public override void OnOpen() => editorWindow.wantsMouseMove = true;
@@ -78,14 +77,43 @@ namespace Meganeura.HierarchyToolkit
         public override void OnGUI(Rect rect)
         {
             EnsureStyle();
+            HandleDrag();
             DrawColors();
             DrawIcons();
+        }
+
+        private void HandleDrag()
+        {
+            var dragRect = new Rect(Padding, 0f, editorWindow.position.width - Padding * 2f, DragHeight);
+            GUI.Label(dragRect, new GUIContent("•••", "Drag the palette"), EditorStyles.centeredGreyMiniLabel);
+            var currentEvent = Event.current;
+            var controlId = GUIUtility.GetControlID(DragControlHash, FocusType.Passive, dragRect);
+            switch (currentEvent.GetTypeForControl(controlId))
+            {
+                case EventType.MouseDown when currentEvent.button == 0 && dragRect.Contains(currentEvent.mousePosition):
+                    dragging = true;
+                    GUIUtility.hotControl = controlId;
+                    dragOffset = GUIUtility.GUIToScreenPoint(currentEvent.mousePosition) - editorWindow.position.position;
+                    currentEvent.Use();
+                    break;
+                case EventType.MouseDrag when dragging && GUIUtility.hotControl == controlId:
+                    var position = editorWindow.position;
+                    position.position = GUIUtility.GUIToScreenPoint(currentEvent.mousePosition) - dragOffset;
+                    editorWindow.position = position;
+                    currentEvent.Use();
+                    break;
+                case EventType.MouseUp when dragging && GUIUtility.hotControl == controlId:
+                    dragging = false;
+                    GUIUtility.hotControl = 0;
+                    currentEvent.Use();
+                    break;
+            }
         }
 
         private void DrawColors()
         {
             var x = Padding;
-            var y = Padding;
+            var y = Padding + DragHeight;
             if (GUI.Button(CellRect(x, y), new GUIContent("×", "Clear manual color. Hold Alt to include descendants."), iconButton))
                 ApplyColor(null, Event.current.alt);
             x += Cell;
@@ -99,7 +127,18 @@ namespace Meganeura.HierarchyToolkit
                     ApplyColor(presets[i], recursive);
                 x += Cell;
             }
-            if (GUI.Button(CellRect(x, y), new GUIContent("+", "Edit color presets"), iconButton)) OpenPresetEditor();
+            if (GUI.Button(CellRect(x, y), new GUIContent("+", "Choose and apply a one-off custom color"), iconButton))
+                OpenCustomColorPicker();
+            x += Cell;
+            GUI.enabled = ManualColorOperations.TryGetColor(target, out var currentColor);
+            if (GUI.Button(CellRect(x, y), new GUIContent("☆", "Add or remove the current color from favorites"), iconButton))
+            {
+                QuickStylePaletteSettings.instance.ToggleColor(currentColor);
+                Close();
+            }
+            GUI.enabled = true;
+            x += Cell;
+            if (GUI.Button(CellRect(x, y), new GUIContent("⚙", "Edit and reorder color favorites"), iconButton)) OpenPresetEditor();
         }
 
         private void DrawIcons()
@@ -109,17 +148,24 @@ namespace Meganeura.HierarchyToolkit
             for (var i = 0; i < icons.Count; ++i)
             {
                 var icon = icons[i];
-                DrawIconButton(index++, new GUIContent(icon.Texture, icon.Preset.Tooltip),
-                    () => ManualIconOperations.ApplyReference(targets, "builtin:" + icon.Preset.Name));
+                DrawIconButton(index++, new GUIContent(icon.Texture, icon.Tooltip),
+                    () => ManualIconOperations.ApplyReference(targets, icon.Reference));
             }
-            DrawIconButton(index, new GUIContent("+", "Choose a custom project icon"), OpenCustomIconPicker);
+            DrawIconButton(index++, new GUIContent("+", "Choose and apply a one-off custom project icon"), OpenCustomIconPicker);
+            var currentReference = ManualIconOperations.InitialReference(target);
+            GUI.enabled = !string.IsNullOrEmpty(currentReference);
+            DrawIconButton(index, new GUIContent("☆", "Add or remove the current icon from favorites"), () =>
+            {
+                QuickStylePaletteSettings.instance.ToggleIcon(currentReference);
+            });
+            GUI.enabled = true;
         }
 
         private void DrawIconButton(int index, GUIContent content, System.Action action)
         {
             var column = index % IconColumns;
             var row = index / IconColumns;
-            if (!GUI.Button(CellRect(Padding + column * Cell, Padding + Cell + row * Cell), content, iconButton)) return;
+            if (!GUI.Button(CellRect(Padding + column * Cell, Padding + DragHeight + Cell + row * Cell), content, iconButton)) return;
             action();
             Close();
         }
@@ -135,6 +181,13 @@ namespace Meganeura.HierarchyToolkit
         {
             var initial = ManualIconOperations.InitialIcon(target);
             EditorApplication.delayCall += () => ManualIconPicker.Open(targets, initial);
+        }
+
+        private void OpenCustomColorPicker()
+        {
+            var initial = ManualColorOperations.InitialColor(target);
+            Close();
+            EditorApplication.delayCall += () => ManualColorPicker.Open(targets, initial);
         }
 
         private void OpenPresetEditor()
@@ -159,18 +212,13 @@ namespace Meganeura.HierarchyToolkit
             };
         }
 
-        private readonly struct IconPreset
-        {
-            internal readonly string Name;
-            internal readonly string Tooltip;
-            internal IconPreset(string name, string tooltip) { Name = name; Tooltip = tooltip; }
-        }
-
         private readonly struct ResolvedIcon
         {
-            internal readonly IconPreset Preset;
+            internal readonly string Reference;
             internal readonly Texture Texture;
-            internal ResolvedIcon(IconPreset preset, Texture texture) { Preset = preset; Texture = texture; }
+            internal string Tooltip => Reference.StartsWith("builtin:", System.StringComparison.Ordinal)
+                ? Reference.Substring(8) : "Project icon favorite";
+            internal ResolvedIcon(string reference, Texture texture) { Reference = reference; Texture = texture; }
         }
     }
 

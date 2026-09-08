@@ -19,6 +19,7 @@ namespace Meganeura.HierarchyToolkit
             if (color.a <= 0f) return;
             EnsureGradientTexture();
             var previous = GUI.color;
+            color.a *= cache.HierarchyIntensity(context.EntityId);
             GUI.color = color;
             GUI.DrawTexture(context.RowRect, gradientTexture, ScaleMode.StretchToFill, true);
             GUI.color = previous;

@@ -146,7 +146,10 @@ namespace Meganeura.HierarchyToolkit.Tests
         [TestCase(false, true, false)]
         [TestCase(true, true, false)]
         public void ManualColorAndSelectionTakePrecedence(bool selected, bool manualColor, bool expected)
-            => Assert.That(SeparatorFeature.ShouldDrawBackground(selected, manualColor), Is.EqualTo(expected));
+        {
+            Assert.That(SeparatorFeature.ShouldDrawBackground(selected, manualColor), Is.EqualTo(expected));
+            Assert.That(SeparatorFeature.ShouldDrawManualColor(selected, manualColor), Is.EqualTo(!selected && manualColor));
+        }
 
         [Test]
         public void BackgroundDefaultsFollowThemeAndExplicitTransparentIsPreserved()

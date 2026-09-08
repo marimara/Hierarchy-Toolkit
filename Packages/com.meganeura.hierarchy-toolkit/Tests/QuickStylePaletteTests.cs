@@ -28,6 +28,13 @@ namespace Meganeura.HierarchyToolkit.Tests
             Assert.That(store.TryGetMetadata(child, out var childEntry) && childEntry.CustomColor == Color.magenta, Is.True);
             Assert.That(store.TryGetMetadata(grandchild, out var grandchildEntry) && grandchildEntry.CustomColor == Color.magenta, Is.True);
             Assert.That(store.TryGetMetadata(unrelated, out _), Is.False);
+            using (var cache = new ManualColorCache())
+            {
+                cache.Rebuild();
+                Assert.That(cache.HierarchyIntensity(target.GetEntityId()), Is.GreaterThan(cache.HierarchyIntensity(child.GetEntityId())));
+                Assert.That(cache.HierarchyIntensity(child.GetEntityId()), Is.GreaterThan(cache.HierarchyIntensity(grandchild.GetEntityId())));
+                Assert.That(cache.HierarchyIntensity(unrelated.GetEntityId()), Is.EqualTo(1f));
+            }
 
             Undo.PerformUndo();
             Assert.That(store.Count, Is.Zero);
@@ -67,12 +74,24 @@ namespace Meganeura.HierarchyToolkit.Tests
         }
 
         [Test]
-        public void ProjectPaletteStartsWithCompactReusableColorSet()
+        public void RecursiveVisualIntensitySoftensByDepthWithoutChangingMetadataColor()
         {
-            var presets = QuickStylePaletteSettings.instance.ColorPresets;
-            Assert.That(presets.Count, Is.GreaterThanOrEqualTo(9));
-            for (var i = 0; i < presets.Count; ++i)
-                Assert.That(presets[i].a, Is.GreaterThan(0f));
+            Assert.That(ManualColorCache.IntensityForDepth(0), Is.EqualTo(1f));
+            Assert.That(ManualColorCache.IntensityForDepth(1), Is.LessThan(ManualColorCache.IntensityForDepth(0)));
+            Assert.That(ManualColorCache.IntensityForDepth(2), Is.LessThan(ManualColorCache.IntensityForDepth(1)));
+            Assert.That(ManualColorCache.IntensityForDepth(100), Is.EqualTo(0.28f));
+        }
+
+        [Test]
+        public void FavoriteMatchingDistinguishesColorsAndStableIconReferences()
+        {
+            var colors = new[] { new Color(0.2f, 0.4f, 0.6f, 1f) };
+            Assert.That(QuickStylePaletteSettings.MatchingColorIndex(colors,
+                new Color(0.2005f, 0.4f, 0.6f, 1f)), Is.Zero);
+            Assert.That(QuickStylePaletteSettings.MatchingColorIndex(colors, Color.red), Is.EqualTo(-1));
+            var icons = new[] { "builtin:Folder Icon", "asset:abc:12" };
+            Assert.That(QuickStylePaletteSettings.MatchingReferenceIndex(icons, "asset:abc:12"), Is.EqualTo(1));
+            Assert.That(QuickStylePaletteSettings.MatchingReferenceIndex(icons, "builtin:Light Icon"), Is.EqualTo(-1));
         }
     }
 }

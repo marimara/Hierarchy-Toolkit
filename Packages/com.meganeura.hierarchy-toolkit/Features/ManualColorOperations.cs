@@ -37,13 +37,18 @@ namespace Meganeura.HierarchyToolkit
 
         internal static Color InitialColor(GameObject target)
         {
-            if (IsSupported(target))
-            {
-                var store = SceneMetadataStore.Find(target.scene);
-                if (store != null && store.TryGetMetadata(target, out var entry) && entry.HasColorOverride)
-                    return entry.CustomColor;
-            }
+            if (TryGetColor(target, out var color)) return color;
             return new Color(0.35f, 0.65f, 1f, 1f);
+        }
+
+        internal static bool TryGetColor(GameObject target, out Color color)
+        {
+            color = default;
+            if (!IsSupported(target)) return false;
+            var store = SceneMetadataStore.Find(target.scene);
+            if (store == null || !store.TryGetMetadata(target, out var entry) || !entry.HasColorOverride) return false;
+            color = entry.CustomColor;
+            return true;
         }
 
         internal static void Apply(GameObject[] targets, Color? color)

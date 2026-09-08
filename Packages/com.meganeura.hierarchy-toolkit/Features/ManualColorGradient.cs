@@ -11,13 +11,14 @@ namespace Meganeura.HierarchyToolkit
         internal static float Alpha(float horizontalPosition)
             => Mathf.Lerp(StartAlpha, EndAlpha, Mathf.Clamp01(horizontalPosition));
 
-        internal static void Draw(MeshGenerationContext context, Rect rect, Color source)
+        internal static void Draw(MeshGenerationContext context, Rect rect, Color source, float intensity = 1f)
         {
             if (rect.width <= 0f || rect.height <= 0f || source.a <= 0f) return;
+            intensity = Mathf.Clamp01(intensity);
             var left = source;
             var right = source;
-            left.a *= StartAlpha;
-            right.a *= EndAlpha;
+            left.a *= StartAlpha * intensity;
+            right.a *= EndAlpha * intensity;
             if (left.a <= 0f && right.a <= 0f) return;
 
             var mesh = context.Allocate(4, 6);

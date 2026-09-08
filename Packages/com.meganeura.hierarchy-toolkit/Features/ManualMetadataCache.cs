@@ -28,8 +28,10 @@ namespace Meganeura.HierarchyToolkit
         }
 
         protected bool TryGetValue(EntityId id, out T value) => values.TryGetValue(id, out value);
+        protected IReadOnlyDictionary<EntityId, T> Values => values;
         protected abstract bool TryResolve(GameObjectMetadata entry, out T value);
         protected virtual void ClearResolvedAssets() { }
+        protected virtual void Rebuilt() { }
 
         internal void Invalidate()
         {
@@ -66,6 +68,7 @@ namespace Meganeura.HierarchyToolkit
                     if (TryResolve(entry, out var value)) values[target.GetEntityId()] = value;
                 }
             }
+            Rebuilt();
             Changed?.Invoke();
             EditorApplication.RepaintHierarchyWindow();
         }

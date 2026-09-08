@@ -20,15 +20,59 @@ namespace Meganeura.HierarchyToolkit
             new Color(0.52f, 0.25f, 0.76f, 1f),
             new Color(0.72f, 0.24f, 0.58f, 1f)
         };
+        [SerializeField] private List<string> iconPresets = new()
+        {
+            "builtin:Folder Icon", "builtin:Camera Icon", "builtin:Light Icon",
+            "builtin:AudioSource Icon", "builtin:Canvas Icon", "builtin:Prefab Icon",
+            "builtin:d_UnityEditor.ConsoleWindow", "builtin:d_SceneViewTools",
+            "builtin:Favorite", "builtin:Settings"
+        };
         [SerializeField, Range(0f, 1f)] private float gradientStartAlpha = 1f;
         [SerializeField, Range(0f, 1f)] private float gradientEndAlpha;
 
         internal event Action Changed;
         internal IReadOnlyList<Color> ColorPresets => colorPresets;
+        internal IReadOnlyList<string> IconPresets => iconPresets;
         internal float GradientStartAlpha => Mathf.Clamp01(gradientStartAlpha);
         internal float GradientEndAlpha => Mathf.Clamp01(gradientEndAlpha);
 
         internal void AddColor(Color color) => Change("Add Hierarchy Color Preset", () => colorPresets.Add(color));
+
+        internal bool ToggleColor(Color color)
+        {
+            var index = MatchingColorIndex(colorPresets, color);
+            if (index >= 0) Change("Remove Hierarchy Color Favorite", () => colorPresets.RemoveAt(index));
+            else Change("Add Hierarchy Color Favorite", () => colorPresets.Add(color));
+            return index < 0;
+        }
+
+        internal bool ToggleIcon(string reference)
+        {
+            if (string.IsNullOrEmpty(reference)) return false;
+            reference = HierarchyIconReference.Normalize(reference);
+            var index = MatchingReferenceIndex(iconPresets, reference);
+            if (index >= 0) Change("Remove Hierarchy Icon Favorite", () => iconPresets.RemoveAt(index));
+            else Change("Add Hierarchy Icon Favorite", () => iconPresets.Add(reference));
+            return index < 0;
+        }
+
+        internal static int MatchingColorIndex(IReadOnlyList<Color> colors, Color color)
+        {
+            for (var i = 0; i < colors.Count; ++i)
+                if (Approximately(colors[i], color)) return i;
+            return -1;
+        }
+
+        internal static int MatchingReferenceIndex(IReadOnlyList<string> references, string reference)
+        {
+            for (var i = 0; i < references.Count; ++i)
+                if (string.Equals(references[i], reference, StringComparison.Ordinal)) return i;
+            return -1;
+        }
+
+        private static bool Approximately(Color left, Color right)
+            => Mathf.Abs(left.r - right.r) <= 0.001f && Mathf.Abs(left.g - right.g) <= 0.001f
+                && Mathf.Abs(left.b - right.b) <= 0.001f && Mathf.Abs(left.a - right.a) <= 0.001f;
 
         internal void SetColor(int index, Color color)
         {

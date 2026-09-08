@@ -178,14 +178,17 @@ namespace Meganeura.HierarchyToolkit
                 var selected = Selection.Contains(id) || item.View.IsSelected(node);
                 if (separators.TryGet(id, out var separator))
                 {
-                    // Header replaces zebra. Manual color lives on the native row behind this decoration.
-                    if (SeparatorFeature.ShouldDrawBackground(selected, colors.TryGetColor(id, out _)))
+                    // Header replaces zebra. Selection remains native; manual color owns the header background.
+                    var hasManualColor = colors.TryGetColor(id, out var separatorColor);
+                    if (SeparatorFeature.ShouldDrawManualColor(selected, hasManualColor))
+                        ManualColorGradient.Draw(context, contentRect, separatorColor, colors.HierarchyIntensity(id));
+                    else if (SeparatorFeature.ShouldDrawBackground(selected, hasManualColor))
                         DrawBackground(context.painter2D, contentRect, SeparatorFeature.Background(separator, EditorGUIUtility.isProSkin));
                     return; // No hierarchy lines through headers, including their indentation.
                 }
                 zebra.Draw(context.painter2D, contentRect, id, index, selected);
                 if (!selected && colors.TryGetColor(id, out var manualColor))
-                    ManualColorGradient.Draw(context, contentRect, manualColor);
+                    ManualColorGradient.Draw(context, contentRect, manualColor, colors.HierarchyIntensity(id));
                 var depth = model.GetDepth(node);
                 if (!lines.Enabled || item.View.Filtering) return;
                 if (branches.Dirty || branches.Count != model.Count)

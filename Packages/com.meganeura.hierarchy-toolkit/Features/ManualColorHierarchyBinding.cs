@@ -67,7 +67,7 @@ namespace Meganeura.HierarchyToolkit
         {
             if (!Selection.Contains(id) && cache.TryGetColor(id, out var color) && color.a > 0f)
             {
-                color.a = Mathf.Clamp01(color.a) * 0.18f;
+                color.a = Mathf.Clamp01(color.a) * 0.18f * cache.HierarchyIntensity(id);
                 row.style.backgroundColor = color;
             }
             else row.style.backgroundColor = background;

@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &1
+MonoBehaviour:
+  m_ObjectHideFlags: 53
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 399d05ed178ced849b0abf8f428f8656, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Meganeura.HierarchyToolkit.Editor::Meganeura.HierarchyToolkit.QuickStylePaletteSettings
+  colorPresets:
+  - {r: 0.16, g: 0.17, b: 0.19, a: 1}
+  - {r: 0.88, g: 0.25, b: 0.28, a: 1}
+  - {r: 0.87, g: 0.67, b: 0.23, a: 1}
+  - {r: 0.39, g: 0.68, b: 0.22, a: 1}
+  - {r: 0.2, g: 0.65, b: 0.39, a: 1}
+  - {r: 0.18, g: 0.65, b: 0.67, a: 1}
+  - {r: 0.24, g: 0.45, b: 0.84, a: 1}
+  - {r: 0.72, g: 0.24, b: 0.58, a: 1}
+  - {r: 1, g: 1, b: 1, a: 1}
+  iconPresets:
+  - builtin:Folder Icon
+  - builtin:Camera Icon
+  - builtin:Light Icon
+  - builtin:AudioSource Icon
+  - builtin:Canvas Icon
+  - builtin:Prefab Icon
+  - builtin:d_UnityEditor.ConsoleWindow
+  - builtin:d_SceneViewTools
+  - builtin:Favorite
+  - builtin:Settings
+  gradientStartAlpha: 1
+  gradientEndAlpha: 0

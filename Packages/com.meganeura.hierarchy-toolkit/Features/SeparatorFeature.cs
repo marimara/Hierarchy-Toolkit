@@ -35,6 +35,7 @@ namespace Meganeura.HierarchyToolkit
 
         // Explicit manual color (including transparent) owns the background. Native selection wins over all colors.
         internal static bool ShouldDrawBackground(bool selected, bool manualColor) => !selected && !manualColor;
+        internal static bool ShouldDrawManualColor(bool selected, bool manualColor) => !selected && manualColor;
         internal static Color Background(SeparatorStyle style, bool dark) => style.HasBackgroundColor
             ? style.BackgroundColor : dark ? new Color(1f, 1f, 1f, 0.085f) : new Color(0f, 0f, 0f, 0.085f);
 
