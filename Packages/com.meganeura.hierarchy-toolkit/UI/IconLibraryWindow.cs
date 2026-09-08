@@ -8,7 +8,7 @@ namespace Meganeura.HierarchyToolkit
     internal sealed class IconLibraryWindow : EditorWindow
     {
         private const float ToolbarHeight = 24f;
-        private const float CellSize = 56f;
+        private const float CellSize = 28f;
         private const float GridPadding = 6f;
         private static readonly int ObjectPickerId = "HierarchyToolkitIconLibrarySpritePicker".GetHashCode();
         private static readonly GUIContent[] ScopeLabels =
@@ -48,9 +48,9 @@ namespace Meganeura.HierarchyToolkit
 
         private void DrawToolbar()
         {
-            var searchRect = new Rect(6f, 3f, Mathf.Max(100f, position.width - 238f), 19f);
+            var searchRect = new Rect(6f, 3f, Mathf.Max(100f, position.width - 198f), 19f);
             var nextSearch = GUI.TextField(searchRect, search, EditorStyles.toolbarSearchField);
-            var scopeRect = new Rect(position.width - 126f, 2f, 90f, 20f);
+            var scopeRect = new Rect(position.width - 186f, 2f, 150f, 20f);
             var nextScope = GUI.Toolbar(scopeRect, scope, ScopeLabels, EditorStyles.toolbarButton);
             if (nextSearch != search || nextScope != scope)
             {
@@ -121,7 +121,7 @@ namespace Meganeura.HierarchyToolkit
             }
 
             if (!entry.IsCustom) return;
-            var removeRect = new Rect(cell.xMax - 17f, cell.y + 2f, 15f, 15f);
+            var removeRect = new Rect(cell.xMax - 12f, cell.y + 1f, 11f, 11f);
             if (GUI.Button(removeRect, new GUIContent("×", "Remove this project Sprite from the library"), EditorStyles.miniButton))
                 QuickStylePaletteSettings.instance.RemoveCustomIcon(entry.Reference);
         }
@@ -169,7 +169,7 @@ namespace Meganeura.HierarchyToolkit
             iconButton = new GUIStyle(GUI.skin.button)
             {
                 imagePosition = ImagePosition.ImageOnly,
-                padding = new RectOffset(8, 8, 8, 8),
+                padding = new RectOffset(4, 4, 4, 4),
                 margin = new RectOffset()
             };
         }
