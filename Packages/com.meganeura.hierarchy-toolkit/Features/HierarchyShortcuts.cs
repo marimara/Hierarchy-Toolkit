@@ -13,6 +13,7 @@ namespace Meganeura.HierarchyToolkit
     {
         private const string ToggleShortcutId = "Hierarchy Toolkit/Expand or Collapse Hovered";
         private const string IsolateShortcutId = "Hierarchy Toolkit/Isolate Hovered Branch";
+        private const string DefaultParentShortcutId = "Hierarchy Toolkit/Toggle Default Parent";
 
         private readonly Dictionary<HierarchyViewItem, RowBinding> rows = new();
         private HierarchyWindow hoveredWindow;
@@ -44,6 +45,13 @@ namespace Meganeura.HierarchyToolkit
                 shortcuts.TryIsolateHovered();
         }
 
+        [Shortcut(DefaultParentShortcutId, typeof(HierarchyShortcuts), KeyCode.D)]
+        private static void ToggleDefaultParentHovered(ShortcutArguments arguments)
+        {
+            if (arguments.context is HierarchyShortcuts shortcuts)
+                shortcuts.TryToggleDefaultParentHovered();
+        }
+
         internal bool TryToggleHovered()
             => !IsEditingText(hoveredWindow)
                && TryGetHoveredTarget(out _, out var view, out var node)
@@ -53,6 +61,11 @@ namespace Meganeura.HierarchyToolkit
             => !IsEditingText(hoveredWindow)
                && TryGetHoveredTarget(out _, out var view, out var node)
                && HierarchyNavigation.Isolate(view, node);
+
+        internal bool TryToggleDefaultParentHovered()
+            => !IsEditingText(hoveredWindow)
+               && TryGetHoveredTarget(out var target, out _, out _)
+               && DefaultParentOperations.Toggle(target);
 
         private void BindExisting()
         {

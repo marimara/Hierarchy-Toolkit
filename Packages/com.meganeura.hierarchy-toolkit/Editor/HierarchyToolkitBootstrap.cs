@@ -16,6 +16,9 @@ namespace Meganeura.HierarchyToolkit
         internal static readonly GameObjectBookmarkStore Bookmarks = GameObjectBookmarkStore.Open(GameObjectBookmarkStore.ProjectKey);
         private static readonly GameObjectBookmarkNavigation BookmarkNavigation = new GameObjectBookmarkNavigation(Bookmarks);
         private static readonly HierarchyShortcuts Shortcuts = new HierarchyShortcuts();
+        internal static readonly DefaultParentCache DefaultParents = new DefaultParentCache();
+        private static readonly DefaultParentHierarchyBinding DefaultParentVisuals = new DefaultParentHierarchyBinding(DefaultParents);
+        private static readonly DefaultParentCreationHandler DefaultParentCreation = new DefaultParentCreationHandler();
         internal static readonly SceneFavoriteStore SceneFavorites = SceneFavoriteStore.Open(SceneFavoriteStore.ProjectKey);
         internal static readonly SceneCatalog Scenes = new SceneCatalog();
         private static readonly SceneSelectorHierarchyBinding SceneSelector = new SceneSelectorHierarchyBinding(Scenes, SceneFavorites);
@@ -38,6 +41,9 @@ namespace Meganeura.HierarchyToolkit
         private static void Shutdown()
         {
             Shortcuts.Dispose();
+            DefaultParentCreation.Dispose();
+            DefaultParentVisuals.Dispose();
+            DefaultParents.Dispose();
             BookmarkNavigation.Dispose();
             UnityEngine.Object.DestroyImmediate(Bookmarks);
             SceneSelector.Dispose();

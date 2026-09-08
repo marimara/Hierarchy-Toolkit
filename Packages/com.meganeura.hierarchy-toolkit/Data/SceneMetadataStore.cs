@@ -15,6 +15,7 @@ namespace Meganeura.HierarchyToolkit
     public sealed class SceneMetadataStore : ScriptableObject
     {
         [SerializeField] private string sceneGuid;
+        [SerializeField] private string defaultParentObjectId;
         [SerializeField] private List<GameObjectMetadata> entries = new List<GameObjectMetadata>();
         [NonSerialized] private Dictionary<string, GameObjectMetadata> index;
         [NonSerialized] private Dictionary<GameObject, string> objectIds;
@@ -27,6 +28,45 @@ namespace Meganeura.HierarchyToolkit
         internal const string StoreFolder = "Packages/com.meganeura.hierarchy-toolkit/Editor/SceneMetadata";
         internal static event Action Changed;
         internal IReadOnlyList<GameObjectMetadata> Entries => entries;
+
+        /// <summary>Resolves this scene's Default Parent without creating metadata or scene objects.</summary>
+        internal bool TryGetDefaultParent(Scene scene, out GameObject target)
+        {
+            target = null;
+            if (string.IsNullOrEmpty(defaultParentObjectId) || !scene.IsValid() || !scene.isLoaded
+                || string.IsNullOrEmpty(scene.path) || EditorSceneManager.IsPreviewScene(scene)
+                || AssetDatabase.AssetPathToGUID(scene.path) != sceneGuid
+                || !GlobalObjectId.TryParse(defaultParentObjectId, out var id)
+                || id.identifierType != 2 || id.targetObjectId == 0 || id.assetGUID.ToString() != sceneGuid)
+                return false;
+            target = GlobalObjectId.GlobalObjectIdentifierToObjectSlow(id) as GameObject;
+            if (target != null && target.scene == scene && ManualColorOperations.IsSupported(target)) return true;
+            target = null;
+            return false;
+        }
+
+        /// <summary>Returns whether the supplied object is this scene's current Default Parent.</summary>
+        internal bool IsDefaultParent(GameObject target)
+            => TryGetId(target, out var id) && id == defaultParentObjectId;
+
+        /// <summary>Sets the scene's stable Default Parent reference with Undo and persistence.</summary>
+        internal void SetDefaultParent(GameObject target)
+        {
+            var id = RequireId(target);
+            if (defaultParentObjectId == id) return;
+            Undo.RegisterCompleteObjectUndo(this, "Set Default Parent");
+            defaultParentObjectId = id;
+            Persist();
+        }
+
+        /// <summary>Clears the scene's Default Parent reference with Undo and persistence.</summary>
+        internal void ClearDefaultParent()
+        {
+            if (string.IsNullOrEmpty(defaultParentObjectId)) return;
+            Undo.RegisterCompleteObjectUndo(this, "Clear Default Parent");
+            defaultParentObjectId = null;
+            Persist();
+        }
 
         /// <summary>Returns the unique GUID-based path for a loaded saved scene.</summary>
         public static string GetStorePath(Scene scene)

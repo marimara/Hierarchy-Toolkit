@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: 99c9720ab356a0642a771bea13969a05
   m_EditorClassIdentifier: Meganeura.HierarchyToolkit.Editor::Meganeura.HierarchyToolkit.SceneMetadataStore
   sceneGuid: 99c9720ab356a0642a771bea13969a05
+  defaultParentObjectId: GlobalObjectId_V1-2-99c9720ab356a0642a771bea13969a05-1825602126-0
   entries:
   - objectId: GlobalObjectId_V1-2-99c9720ab356a0642a771bea13969a05-383363660-0
     customColor: {r: 1, g: 0, b: 0.0034582615, a: 1}
