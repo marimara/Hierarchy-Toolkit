@@ -66,42 +66,132 @@ namespace Meganeura.HierarchyToolkit
             private readonly Scene scene;
             private readonly SceneCatalog catalog;
             private readonly SceneFavoriteStore favorites;
+
             private readonly Label arrow;
             private readonly string previousTooltip;
 
-            internal RowBinding(HierarchyWindow window, HierarchyViewItem item, Scene scene, SceneCatalog catalog, SceneFavoriteStore favorites)
+            internal RowBinding(
+                HierarchyWindow window,
+                HierarchyViewItem item,
+                Scene scene,
+                SceneCatalog catalog,
+                SceneFavoriteStore favorites)
             {
                 this.window = window;
                 this.item = item;
                 this.scene = scene;
                 this.catalog = catalog;
                 this.favorites = favorites;
+
                 previousTooltip = item.Name.tooltip;
                 item.Name.tooltip = "Open project scene selector";
-                item.Name.RegisterCallback<PointerDownEvent>(PointerDown, TrickleDown.TrickleDown);
-                arrow = new Label("▾") { name = "hierarchy-toolkit-scene-selector-arrow", tooltip = "Open project scene selector" };
-                arrow.style.unityTextAlign = TextAnchor.MiddleCenter;
+
+                item.Name.RegisterCallback<PointerDownEvent>(
+                    PointerDown,
+                    TrickleDown.TrickleDown);
+
+                arrow = new Label("▾")
+                {
+                    name = "hierarchy-toolkit-scene-selector-arrow",
+                    tooltip = "Open project scene selector"
+                };
+
+                // IMPORTANT:
+                // The arrow must NOT participate in Unity's native scene-row layout.
+                arrow.style.position = Position.Absolute;
+
                 arrow.style.width = 12f;
-                arrow.style.minWidth = 12f;
+                arrow.style.height = 16f;
+
+                arrow.style.marginLeft = 0f;
+                arrow.style.marginRight = 0f;
+                arrow.style.marginTop = 0f;
+                arrow.style.marginBottom = 0f;
+
+                arrow.style.paddingLeft = 0f;
+                arrow.style.paddingRight = 0f;
+                arrow.style.paddingTop = 0f;
+                arrow.style.paddingBottom = 0f;
+
+                arrow.style.unityTextAlign = TextAnchor.MiddleCenter;
                 arrow.style.flexShrink = 0f;
-                arrow.RegisterCallback<PointerDownEvent>(PointerDown, TrickleDown.TrickleDown);
-                item.Name.parent.Add(arrow);
+
+                arrow.RegisterCallback<PointerDownEvent>(
+                    PointerDown,
+                    TrickleDown.TrickleDown);
+
+                // Add to the row as an overlay instead of adding another
+                // flex child beside Unity's native scene name.
+                item.RowContainer.Add(arrow);
+
+                item.Name.RegisterCallback<GeometryChangedEvent>(GeometryChanged);
+                item.RowContainer.RegisterCallback<GeometryChangedEvent>(GeometryChanged);
+
+                PositionArrow();
+            }
+
+            private void GeometryChanged(GeometryChangedEvent evt)
+            {
+                PositionArrow();
+            }
+
+            private void PositionArrow()
+            {
+                if (arrow == null || item?.Name == null || item.RowContainer == null)
+                    return;
+
+                var nameRect = item.RowContainer.WorldToLocal(item.Name.worldBound);
+
+                if (nameRect.width <= 0f || nameRect.height <= 0f)
+                    return;
+
+                const float spacing = 1f;
+
+                arrow.style.left = nameRect.xMax + spacing;
+
+                // Center the arrow vertically against Unity's native scene label.
+                arrow.style.top =
+                    nameRect.yMin + ((nameRect.height - 16f) * 0.5f);
             }
 
             private void PointerDown(PointerDownEvent evt)
             {
-                if (evt.button != 0) return;
+                if (evt.button != 0)
+                    return;
+
                 evt.StopImmediatePropagation();
+
                 var bound = item.Name.worldBound;
-                var anchor = new Rect(window.position.x + bound.x, window.position.y + bound.y, bound.width, bound.height);
-                UnityEditor.PopupWindow.Show(anchor, new SceneSelectorPopup(catalog, favorites, scene.path));
+
+                var anchor = new Rect(
+                    window.position.x + bound.x,
+                    window.position.y + bound.y,
+                    bound.width,
+                    bound.height);
+
+                UnityEditor.PopupWindow.Show(
+                    anchor,
+                    new SceneSelectorPopup(catalog, favorites, scene.path));
             }
 
             public void Dispose()
             {
                 item.Name.tooltip = previousTooltip;
-                item.Name.UnregisterCallback<PointerDownEvent>(PointerDown, TrickleDown.TrickleDown);
-                arrow.UnregisterCallback<PointerDownEvent>(PointerDown, TrickleDown.TrickleDown);
+
+                item.Name.UnregisterCallback<PointerDownEvent>(
+                    PointerDown,
+                    TrickleDown.TrickleDown);
+
+                item.Name.UnregisterCallback<GeometryChangedEvent>(
+                    GeometryChanged);
+
+                item.RowContainer.UnregisterCallback<GeometryChangedEvent>(
+                    GeometryChanged);
+
+                arrow.UnregisterCallback<PointerDownEvent>(
+                    PointerDown,
+                    TrickleDown.TrickleDown);
+
                 arrow.RemoveFromHierarchy();
             }
         }
