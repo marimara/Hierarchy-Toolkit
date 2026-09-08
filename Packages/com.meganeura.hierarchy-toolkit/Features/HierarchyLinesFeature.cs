@@ -8,10 +8,10 @@ namespace Meganeura.HierarchyToolkit
 {
     internal sealed class HierarchyLinesFeature : IHierarchyFeature
     {
-        private const float DarkLineOpacity = 0.13f;
-        private const float LightLineOpacity = 0.16f;
+        private const float DarkLineOpacity = 0.15f;
+        private const float LightLineOpacity = 0.25f;
         private const float LineThickness = 1f;
-        private const float MaximumBranchLength = 8f;
+        private const float MaximumBranchLength = 14f;
         private const float NativeControlGap = 2f;
         private const float GuideOffset = 0f;
         private const float MinimumIndent = 8f;
@@ -79,8 +79,9 @@ namespace Meganeura.HierarchyToolkit
                 || !TryGetIndent(depth, gutterEnd, contentStart, out var indent)) return;
             var nearest = GuideX(toggle.center.x, indent, 1);
             // Reserve the entire native control area, even for leaves with an invisible toggle.
-            var end = Mathf.Min(nearest + MaximumBranchLength,
-                Mathf.Min(Mathf.Min(toggle.xMin, contentStart) - NativeControlGap, rect.xMax));
+            var end = Mathf.Min(
+                nearest + MaximumBranchLength,
+                Mathf.Min(toggle.center.x - NativeControlGap, rect.xMax));
             if (nearest >= end || nearest < Mathf.Max(rect.xMin, gutterEnd)) return;
             var painter = context.painter2D;
             painter.strokeColor = EditorGUIUtility.isProSkin
