@@ -13,6 +13,8 @@ namespace Meganeura.HierarchyToolkit
         internal static readonly SeparatorFeature Separators = new SeparatorFeature();
         internal static readonly ActivationToggleFeature Activation = new ActivationToggleFeature();
         internal static readonly ComponentMinimapFeature ComponentMinimap = new ComponentMinimapFeature();
+        internal static readonly GameObjectBookmarkStore Bookmarks = GameObjectBookmarkStore.Open(GameObjectBookmarkStore.ProjectKey);
+        private static readonly GameObjectBookmarkNavigation BookmarkNavigation = new GameObjectBookmarkNavigation(Bookmarks);
         private static readonly VisualHierarchyBinding Visuals = new VisualHierarchyBinding(ZebraStriping, HierarchyLines, ManualColors.Cache, Separators, Activation, ComponentMinimap);
 
         static HierarchyToolkitBootstrap()
@@ -31,6 +33,8 @@ namespace Meganeura.HierarchyToolkit
 
         private static void Shutdown()
         {
+            BookmarkNavigation.Dispose();
+            UnityEngine.Object.DestroyImmediate(Bookmarks);
             Visuals.Dispose();
             ComponentMinimap.Dispose();
             Separators.Dispose();
