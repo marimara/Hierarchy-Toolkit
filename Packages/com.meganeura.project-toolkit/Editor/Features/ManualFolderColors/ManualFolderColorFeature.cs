@@ -16,6 +16,7 @@ namespace Meganeura.ProjectToolkit
         private readonly Action repaintProjectWindow;
         private readonly Action<Undo.UndoRedoCallback> subscribeUndoRedo;
         private readonly Action<Undo.UndoRedoCallback> unsubscribeUndoRedo;
+        private readonly Func<Texture> resolveFolderTexture;
         private Texture folderTexture;
         private ContextTarget contextTarget;
         private bool isInitialized;
@@ -27,7 +28,8 @@ namespace Meganeura.ProjectToolkit
                 repository,
                 EditorApplication.RepaintProjectWindow,
                 callback => Undo.undoRedoPerformed += callback,
-                callback => Undo.undoRedoPerformed -= callback)
+                callback => Undo.undoRedoPerformed -= callback,
+                ResolveFolderTexture)
         {
         }
 
@@ -35,12 +37,14 @@ namespace Meganeura.ProjectToolkit
             FolderMetadataRepository repository,
             Action repaintProjectWindow,
             Action<Undo.UndoRedoCallback> subscribeUndoRedo,
-            Action<Undo.UndoRedoCallback> unsubscribeUndoRedo)
+            Action<Undo.UndoRedoCallback> unsubscribeUndoRedo,
+            Func<Texture> resolveFolderTexture = null)
         {
             this.repository = repository ?? throw new ArgumentNullException(nameof(repository));
             this.repaintProjectWindow = repaintProjectWindow ?? throw new ArgumentNullException(nameof(repaintProjectWindow));
             this.subscribeUndoRedo = subscribeUndoRedo ?? throw new ArgumentNullException(nameof(subscribeUndoRedo));
             this.unsubscribeUndoRedo = unsubscribeUndoRedo ?? throw new ArgumentNullException(nameof(unsubscribeUndoRedo));
+            this.resolveFolderTexture = resolveFolderTexture ?? ResolveFolderTexture;
         }
 
         public bool IsEnabled => true;
@@ -53,7 +57,7 @@ namespace Meganeura.ProjectToolkit
             }
 
             isInitialized = true;
-            folderTexture = EditorGUIUtility.IconContent("Folder Icon").image;
+            folderTexture = resolveFolderTexture();
             subscribeUndoRedo(OnUndoRedo);
             if (activeFeature == null)
             {
@@ -78,9 +82,15 @@ namespace Meganeura.ProjectToolkit
             }
 
             Color previousColor = GUI.color;
-            GUI.color = decision.Color;
-            GUI.DrawTexture(decision.IconRect, folderTexture, ScaleMode.ScaleToFit, true);
-            GUI.color = previousColor;
+            try
+            {
+                GUI.color = decision.Color;
+                GUI.DrawTexture(decision.IconRect, folderTexture, ScaleMode.ScaleToFit, true);
+            }
+            finally
+            {
+                GUI.color = previousColor;
+            }
         }
 
         public void Dispose()
@@ -273,6 +283,12 @@ namespace Meganeura.ProjectToolkit
         private void OnUndoRedo()
         {
             repaintProjectWindow();
+        }
+
+        private static Texture ResolveFolderTexture()
+        {
+            return AssetDatabase.GetCachedIcon("Assets")
+                ?? EditorGUIUtility.IconContent("Folder Icon").image;
         }
 
         private readonly struct ContextTarget

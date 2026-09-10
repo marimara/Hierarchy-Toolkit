@@ -262,6 +262,76 @@ namespace Meganeura.ProjectToolkit.Tests
         }
 
         [Test]
+        public void ListLayoutUsesNativeIconSizeAndCentersItVertically()
+        {
+            Rect itemRect = new Rect(11f, 7f, 180f, 18f);
+
+            Assert.That(ManualFolderColorLayout.TryGetIconRect(itemRect, 18f, out ProjectItemPresentation presentation, out Rect iconRect), Is.True);
+
+            Assert.That(presentation, Is.EqualTo(ProjectItemPresentation.ListOrTree));
+            Assert.That(iconRect.width, Is.EqualTo(16f));
+            Assert.That(iconRect.height, Is.EqualTo(16f));
+            Assert.That(iconRect.xMin, Is.EqualTo(itemRect.xMin));
+            Assert.That(iconRect.center.y, Is.EqualTo(itemRect.center.y));
+        }
+
+        [TestCase(32f)]
+        [TestCase(64f)]
+        [TestCase(96f)]
+        public void GridLayoutUsesNativeSquareAndPreservesLabelRemainder(float iconSize)
+        {
+            const float labelRemainder = 14f;
+            Rect itemRect = new Rect(13f, 17f, iconSize, iconSize + labelRemainder);
+
+            Assert.That(ManualFolderColorLayout.TryGetIconRect(itemRect, 18f, out ProjectItemPresentation presentation, out Rect iconRect), Is.True);
+
+            Assert.That(presentation, Is.EqualTo(ProjectItemPresentation.Grid));
+            Assert.That(iconRect.size, Is.EqualTo(new Vector2(iconSize, iconSize)));
+            Assert.That(iconRect.center.x, Is.EqualTo(itemRect.center.x));
+            Assert.That(iconRect.yMin - itemRect.yMin, Is.EqualTo(labelRemainder * 0.5f));
+            Assert.That(itemRect.yMax - iconRect.yMax, Is.EqualTo(labelRemainder * 0.5f));
+        }
+
+        [TestCase(20f, 28f)]
+        [TestCase(31f, 45f)]
+        [TestCase(64f, 70f)]
+        [TestCase(64f, 90f)]
+        public void AmbiguousGeometryReturnsSafeFallback(float width, float height)
+        {
+            Assert.That(ManualFolderColorLayout.TryGetIconRect(
+                new Rect(0f, 0f, width, height),
+                18f,
+                out ProjectItemPresentation presentation,
+                out _), Is.False);
+            Assert.That(presentation, Is.EqualTo(ProjectItemPresentation.Unsupported));
+        }
+
+        [Test]
+        public void FolderTextureIsResolvedOnlyOnceAcrossRepeatedInitialization()
+        {
+            FolderMetadataRepository repository = CreateRepository(CreateStore());
+            int resolutions = 0;
+            Texture2D texture = new Texture2D(1, 1);
+            ManualFolderColorFeature feature = new ManualFolderColorFeature(
+                repository,
+                () => { },
+                callback => { },
+                callback => { },
+                () =>
+                {
+                    resolutions++;
+                    return texture;
+                });
+            features.Add(feature);
+
+            feature.Initialize();
+            feature.Initialize();
+
+            Assert.That(resolutions, Is.EqualTo(1));
+            UnityEngine.Object.DestroyImmediate(texture);
+        }
+
+        [Test]
         public void RepeatedDrawDecisionsUseCachedSnapshotWithoutPathLookupOrWrite()
         {
             ProjectFolderMetadataStore store = ScriptableObject.CreateInstance<ProjectFolderMetadataStore>();

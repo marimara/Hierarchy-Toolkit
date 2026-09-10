@@ -29,9 +29,10 @@ namespace Meganeura.ProjectToolkit
 
     internal static class ManualFolderColorLayout
     {
-        private const float ListHorizontalInset = 2f;
-        private const float GridHorizontalInset = 6f;
-        private const float GridTopInset = 2f;
+        private const float NativeListIconSize = 16f;
+        private const float MinimumListIconSize = 12f;
+        private const float MinimumGridIconSize = 32f;
+        private const float MinimumGridVerticalRemainder = 10f;
         private const float LayoutTolerance = 2f;
 
         internal static ProjectItemPresentation Classify(Rect itemRect, float singleLineHeight)
@@ -46,7 +47,7 @@ namespace Meganeura.ProjectToolkit
                 return ProjectItemPresentation.ListOrTree;
             }
 
-            if (itemRect.width >= singleLineHeight * 2f && itemRect.height >= singleLineHeight * 2f)
+            if (IsRecognizedGridRect(itemRect, singleLineHeight))
             {
                 return ProjectItemPresentation.Grid;
             }
@@ -63,16 +64,8 @@ namespace Meganeura.ProjectToolkit
             presentation = Classify(itemRect, singleLineHeight);
             if (presentation == ProjectItemPresentation.ListOrTree)
             {
-                float size = Mathf.Min(itemRect.height, singleLineHeight);
-                iconRect = new Rect(itemRect.x + ListHorizontalInset, itemRect.y, size, size);
-                return true;
-            }
-
-            if (presentation == ProjectItemPresentation.Grid)
-            {
-                float availableHeight = itemRect.height - singleLineHeight - GridTopInset;
-                float size = Mathf.Min(itemRect.width - GridHorizontalInset * 2f, availableHeight);
-                if (size < singleLineHeight)
+                float size = Mathf.Min(itemRect.height, NativeListIconSize);
+                if (size < MinimumListIconSize)
                 {
                     iconRect = default;
                     presentation = ProjectItemPresentation.Unsupported;
@@ -80,15 +73,34 @@ namespace Meganeura.ProjectToolkit
                 }
 
                 iconRect = new Rect(
-                    itemRect.x + (itemRect.width - size) * 0.5f,
-                    itemRect.y + GridTopInset,
+                    itemRect.x,
+                    itemRect.y + (itemRect.height - size) * 0.5f,
                     size,
                     size);
                 return true;
             }
 
+            if (presentation == ProjectItemPresentation.Grid)
+            {
+                float verticalRemainder = itemRect.height - itemRect.width;
+                iconRect = new Rect(
+                    itemRect.x,
+                    itemRect.y + verticalRemainder * 0.5f,
+                    itemRect.width,
+                    itemRect.width);
+                return true;
+            }
+
             iconRect = default;
             return false;
+        }
+
+        private static bool IsRecognizedGridRect(Rect itemRect, float singleLineHeight)
+        {
+            float verticalRemainder = itemRect.height - itemRect.width;
+            return itemRect.width >= MinimumGridIconSize
+                && verticalRemainder >= MinimumGridVerticalRemainder
+                && verticalRemainder <= singleLineHeight + LayoutTolerance;
         }
     }
 }
