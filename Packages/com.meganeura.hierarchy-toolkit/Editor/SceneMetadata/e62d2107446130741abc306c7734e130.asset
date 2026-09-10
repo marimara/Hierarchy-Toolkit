@@ -1,0 +1,186 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ad46fc0d1c0ad8345b2eca4e083bac26, type: 3}
+  m_Name: e62d2107446130741abc306c7734e130
+  m_EditorClassIdentifier: Meganeura.HierarchyToolkit.Editor::Meganeura.HierarchyToolkit.SceneMetadataStore
+  sceneGuid: e62d2107446130741abc306c7734e130
+  defaultParentObjectId: 
+  entries:
+  - objectId: GlobalObjectId_V1-2-e62d2107446130741abc306c7734e130-664034315-0
+    customColor: {r: 0, g: 0, b: 0, a: 0}
+    customIconReference: 
+    hasColorOverride: 0
+    hasIconOverride: 0
+    separator:
+      enabled: 1
+      displayText: -------MANAGERS--------
+      hasBackgroundColor: 1
+      backgroundColor: {r: 1, g: 1, b: 1, a: 0}
+      hasTextColor: 1
+      textColor: {r: 1, g: 0, b: 0, a: 1}
+      bold: 1
+  - objectId: GlobalObjectId_V1-2-e62d2107446130741abc306c7734e130-1588686953-0
+    customColor: {r: 0.88, g: 0.25, b: 0.28, a: 1}
+    customIconReference: builtin:UnityEditor.AnimationWindow@2x
+    hasColorOverride: 1
+    hasIconOverride: 1
+    separator:
+      enabled: 0
+      displayText: 
+      hasBackgroundColor: 0
+      backgroundColor: {r: 0, g: 0, b: 0, a: 0}
+      hasTextColor: 0
+      textColor: {r: 0, g: 0, b: 0, a: 0}
+      bold: 0
+  - objectId: GlobalObjectId_V1-2-e62d2107446130741abc306c7734e130-2133872132-0
+    customColor: {r: 0.88, g: 0.25, b: 0.28, a: 1}
+    customIconReference: 
+    hasColorOverride: 1
+    hasIconOverride: 0
+    separator:
+      enabled: 0
+      displayText: 
+      hasBackgroundColor: 0
+      backgroundColor: {r: 0, g: 0, b: 0, a: 0}
+      hasTextColor: 0
+      textColor: {r: 0, g: 0, b: 0, a: 0}
+      bold: 0
+  - objectId: GlobalObjectId_V1-2-e62d2107446130741abc306c7734e130-870147765-0
+    customColor: {r: 0.88, g: 0.25, b: 0.28, a: 1}
+    customIconReference: 
+    hasColorOverride: 1
+    hasIconOverride: 0
+    separator:
+      enabled: 0
+      displayText: 
+      hasBackgroundColor: 0
+      backgroundColor: {r: 0, g: 0, b: 0, a: 0}
+      hasTextColor: 0
+      textColor: {r: 0, g: 0, b: 0, a: 0}
+      bold: 0
+  - objectId: GlobalObjectId_V1-2-e62d2107446130741abc306c7734e130-904680848-0
+    customColor: {r: 0.3962264, g: 0.2678889, b: 0.3586642, a: 1}
+    customIconReference: builtin:tree_icon_frond
+    hasColorOverride: 1
+    hasIconOverride: 1
+    separator:
+      enabled: 0
+      displayText: 
+      hasBackgroundColor: 0
+      backgroundColor: {r: 0, g: 0, b: 0, a: 0}
+      hasTextColor: 0
+      textColor: {r: 0, g: 0, b: 0, a: 0}
+      bold: 0
+  - objectId: GlobalObjectId_V1-2-e62d2107446130741abc306c7734e130-1840118487-0
+    customColor: {r: 0.72, g: 0.24, b: 0.58, a: 1}
+    customIconReference: 
+    hasColorOverride: 1
+    hasIconOverride: 0
+    separator:
+      enabled: 0
+      displayText: 
+      hasBackgroundColor: 0
+      backgroundColor: {r: 0, g: 0, b: 0, a: 0}
+      hasTextColor: 0
+      textColor: {r: 0, g: 0, b: 0, a: 0}
+      bold: 0
+  - objectId: GlobalObjectId_V1-2-e62d2107446130741abc306c7734e130-532201758-0
+    customColor: {r: 0.72, g: 0.24, b: 0.58, a: 1}
+    customIconReference: 
+    hasColorOverride: 1
+    hasIconOverride: 0
+    separator:
+      enabled: 0
+      displayText: 
+      hasBackgroundColor: 0
+      backgroundColor: {r: 0, g: 0, b: 0, a: 0}
+      hasTextColor: 0
+      textColor: {r: 0, g: 0, b: 0, a: 0}
+      bold: 0
+  - objectId: GlobalObjectId_V1-2-e62d2107446130741abc306c7734e130-1338571300-0
+    customColor: {r: 0.72, g: 0.24, b: 0.58, a: 1}
+    customIconReference: 
+    hasColorOverride: 1
+    hasIconOverride: 0
+    separator:
+      enabled: 0
+      displayText: 
+      hasBackgroundColor: 0
+      backgroundColor: {r: 0, g: 0, b: 0, a: 0}
+      hasTextColor: 0
+      textColor: {r: 0, g: 0, b: 0, a: 0}
+      bold: 0
+  - objectId: GlobalObjectId_V1-2-e62d2107446130741abc306c7734e130-119267402-0
+    customColor: {r: 0.72, g: 0.24, b: 0.58, a: 1}
+    customIconReference: 
+    hasColorOverride: 1
+    hasIconOverride: 0
+    separator:
+      enabled: 0
+      displayText: 
+      hasBackgroundColor: 0
+      backgroundColor: {r: 0, g: 0, b: 0, a: 0}
+      hasTextColor: 0
+      textColor: {r: 0, g: 0, b: 0, a: 0}
+      bold: 0
+  - objectId: GlobalObjectId_V1-2-e62d2107446130741abc306c7734e130-916057725-0
+    customColor: {r: 0.18, g: 0.65, b: 0.67, a: 1}
+    customIconReference: 
+    hasColorOverride: 1
+    hasIconOverride: 0
+    separator:
+      enabled: 1
+      displayText: -----MANAGERS-----
+      hasBackgroundColor: 0
+      backgroundColor: {r: 0, g: 0, b: 0, a: 0}
+      hasTextColor: 1
+      textColor: {r: 1, g: 0, b: 0, a: 1}
+      bold: 1
+  - objectId: GlobalObjectId_V1-2-e62d2107446130741abc306c7734e130-1830617243-0
+    customColor: {r: 0.18, g: 0.65, b: 0.67, a: 1}
+    customIconReference: builtin:console.warnicon.sml@2x
+    hasColorOverride: 1
+    hasIconOverride: 1
+    separator:
+      enabled: 0
+      displayText: 
+      hasBackgroundColor: 0
+      backgroundColor: {r: 0, g: 0, b: 0, a: 0}
+      hasTextColor: 0
+      textColor: {r: 0, g: 0, b: 0, a: 0}
+      bold: 0
+  - objectId: GlobalObjectId_V1-2-e62d2107446130741abc306c7734e130-1093522087-0
+    customColor: {r: 0.18, g: 0.65, b: 0.67, a: 1}
+    customIconReference: 
+    hasColorOverride: 1
+    hasIconOverride: 0
+    separator:
+      enabled: 0
+      displayText: 
+      hasBackgroundColor: 0
+      backgroundColor: {r: 0, g: 0, b: 0, a: 0}
+      hasTextColor: 0
+      textColor: {r: 0, g: 0, b: 0, a: 0}
+      bold: 0
+  - objectId: GlobalObjectId_V1-2-e62d2107446130741abc306c7734e130-527150851-0
+    customColor: {r: 0, g: 0, b: 0, a: 0}
+    customIconReference: builtin:SoftlockProjectBrowser Icon
+    hasColorOverride: 0
+    hasIconOverride: 1
+    separator:
+      enabled: 0
+      displayText: 
+      hasBackgroundColor: 0
+      backgroundColor: {r: 0, g: 0, b: 0, a: 0}
+      hasTextColor: 0
+      textColor: {r: 0, g: 0, b: 0, a: 0}
+      bold: 0

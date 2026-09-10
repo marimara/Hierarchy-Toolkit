@@ -1,0 +1,13 @@
+{
+  "name": "Meganeura.ProjectToolkit.Editor.Tests",
+  "rootNamespace": "Meganeura.ProjectToolkit.Tests",
+  "references": [
+    "Meganeura.ProjectToolkit.Editor"
+  ],
+  "includePlatforms": [
+    "Editor"
+  ],
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}

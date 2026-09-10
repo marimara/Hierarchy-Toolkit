@@ -1,6 +1,8 @@
-# Hierarchy Toolkit
+# Meganeura Editor Toolkits
 
 Unity Editor-only internal package for improving the Unity Hierarchy workflow for programmers, designers, and artists.
+
+The project also contains a separate Editor-only Project Toolkit for improving the Unity Project window. The two packages form one product family but remain independently installable and must not directly depend on one another.
 
 Package root:
 
@@ -10,11 +12,23 @@ Namespace:
 
 Meganeura.HierarchyToolkit
 
+Project Toolkit package root and namespace:
+
+Packages/com.meganeura.project-toolkit/
+
+Meganeura.ProjectToolkit
+
 Feature behavior and roadmap are defined in:
 
 Packages/com.meganeura.hierarchy-toolkit/Specs/
 
+Project Toolkit behavior and roadmap are defined in:
+
+Packages/com.meganeura.project-toolkit/Specs/
+
 The goal is to build a fast, maintainable, artist-friendly internal Hierarchy workflow without replacing or destabilizing Unity's native editor behavior.
+
+Project Toolkit has the same goal for Unity's native Project Browser. Do not merge the Hierarchy and Project feature coordinators. Shared code may move to a separate package only when it already has at least two real consumers, remains independent of both window models, and the extraction is in the active task's scope.
 
 ---
 
@@ -43,7 +57,11 @@ Prefer modular features based on:
 
 IHierarchyFeature
 
+For Project Toolkit, prefer modular features based on `IProjectFeature` where that contract meaningfully centralizes lifecycle, rendering, or interaction.
+
 The central hierarchy system should coordinate features rather than implement all feature logic itself.
+
+The central Project window system should follow the same coordination principle without depending on the Hierarchy coordinator.
 
 Avoid giant manager classes.
 
@@ -107,6 +125,8 @@ Animation must never compromise Editor responsiveness.
 
 The Unity Hierarchy can redraw and rebind rows very frequently.
 
+The Unity Project Browser can likewise invoke item drawing or binding for many visible assets. The same hot-path constraints apply to Project window item callbacks and frequently invoked list/grid binding paths.
+
 Code executed in:
 
 - hierarchyWindowItemByEntityIdOnGUI
@@ -129,6 +149,9 @@ Avoid in hot paths:
 - new GUIContent allocations
 - repeated texture lookup
 - repeated type discovery
+- folder enumeration or content scanning
+- repeated GUID/path conversion
+- preference or configuration deserialization
 
 Prefer:
 
@@ -161,6 +184,7 @@ Prefer events such as:
 - EditorSceneManager.sceneClosed
 - EditorSceneManager.sceneSaved
 - EditorApplication.projectChanged
+- asset import/move/delete notifications when narrower invalidation is available
 
 Use EditorApplication.update only when there is no cleaner alternative.
 
@@ -175,6 +199,14 @@ Hierarchy metadata must live outside scene object components.
 Use stable object identification where necessary.
 
 Prefer GlobalObjectId or another appropriate stable identifier instead of relying exclusively on InstanceID.
+
+## Project Asset Safety
+
+Project Toolkit must not modify imported assets, folder contents, or folder `.meta` files merely to store decoration or workflow metadata.
+
+Use asset GUIDs as durable folder identity. Paths and instance IDs are transient lookup data and must not be the sole persistent identity.
+
+Package and read-only folders must fail safely when an operation is not supported.
 
 ---
 
@@ -293,6 +325,8 @@ Examples:
 
 Store in project assets suitable for source control.
 
+Project Toolkit team-visible folder styling and automatic rules belong in one source-control-friendly project data store outside the package source. Avoid one metadata asset per folder.
+
 ### Scene/Object Metadata
 
 Examples:
@@ -319,6 +353,8 @@ Examples:
 - popup behavior
 
 Prefer EditorPrefs or another appropriate user-local mechanism when settings should not be committed.
+
+Project Toolkit folder bookmarks, navigation history, visual density, and shortcut preferences are personal unless an active spec explicitly defines them as shared.
 
 ---
 
@@ -347,6 +383,12 @@ Preserve native Unity behavior for:
 - prefab indicators
 
 unless the active spec explicitly requires otherwise.
+
+### Project Browser UI
+
+Project Toolkit must account explicitly for supported one-column, two-column, list, and grid presentations. Preserve native Project Browser selection, rename, search editing, folder disclosure, double-click/open, drag/drop, context menus, keyboard navigation, and native overlays.
+
+If a reliable public integration is unavailable, isolate non-public Unity integration behind a focused adapter with version checks and a safe disabled fallback. Do not spread reflection through feature code or execute it in per-item hot paths.
 
 ---
 
@@ -443,6 +485,10 @@ Feature behavior is defined in:
 
 Packages/com.meganeura.hierarchy-toolkit/Specs/
 
+For Project Toolkit tasks, the equivalent source is:
+
+Packages/com.meganeura.project-toolkit/Specs/
+
 For implementation tasks:
 
 - the active spec is the source of truth for feature-specific behavior
@@ -479,6 +525,10 @@ Preferred Skills:
 - unity-hierarchy-ui — Hierarchy visual and interactive work
 - unity-editor-debug — debugging existing tooling
 - unity-editor-test — creating or extending tests
+- unity-project-feature — implementing a numbered Project Toolkit spec
+- unity-project-window-ui — Project Browser visual and interactive work
+- unity-project-debug — debugging existing Project Toolkit behavior
+- unity-project-test — creating and validating targeted Project Toolkit tests
 
 AGENTS.md defines global engineering rules.
 
@@ -499,6 +549,10 @@ Never make broad project-wide changes unless explicitly requested.
 For Hierarchy Toolkit tasks, prioritize files inside:
 
 Packages/com.meganeura.hierarchy-toolkit/
+
+For Project Toolkit tasks, prioritize files inside:
+
+Packages/com.meganeura.project-toolkit/
 
 Do not inspect unrelated project directories unless necessary.
 
@@ -589,7 +643,11 @@ Default validation is:
 - Console validation
 - manual verification when required
 
-Do not run the full Hierarchy Toolkit suite during normal feature work unless HARNESS.md explicitly calls for it.
+Use the active package's harness. Do not run either package's full suite during normal feature work unless its `HARNESS.md` explicitly calls for it.
+
+Project Toolkit validation procedure is defined in:
+
+Packages/com.meganeura.project-toolkit/Specs/HARNESS.md
 
 Prefer the smallest test set that provides reasonable confidence in the current change.
 
@@ -599,7 +657,7 @@ Do not claim visual verification unless it was actually performed.
 
 ## Full Suite Policy
 
-The full Hierarchy Toolkit EditMode suite is reserved for:
+The full EditMode suite for either Toolkit package is reserved for:
 
 - explicit user requests
 - release or milestone validation

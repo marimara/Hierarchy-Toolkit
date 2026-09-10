@@ -1,0 +1,7 @@
+{
+  "name": "Meganeura.ProjectToolkit.Editor",
+  "rootNamespace": "Meganeura.ProjectToolkit",
+  "includePlatforms": [
+    "Editor"
+  ]
+}

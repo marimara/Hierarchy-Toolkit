@@ -22,6 +22,7 @@ MonoBehaviour:
   - {r: 0.24, g: 0.45, b: 0.84, a: 1}
   - {r: 0.72, g: 0.24, b: 0.58, a: 1}
   - {r: 1, g: 1, b: 1, a: 1}
+  - {r: 0.3962264, g: 0.2678889, b: 0.3586642, a: 1}
   iconPresets:
   - builtin:Folder Icon
   - builtin:Camera Icon
@@ -34,6 +35,7 @@ MonoBehaviour:
   - builtin:Favorite
   - builtin:Settings
   - builtin:Animation.LastKey@2x
+  - builtin:UnityEditor.AnimationWindow@2x
   customIconLibrary: []
   gradientStartAlpha: 1
   gradientEndAlpha: 0
