@@ -28,13 +28,23 @@ Every spec uses one status:
 - Extract shared code into a separate shared package only after at least two real consumers exist and the extraction is part of the active task.
 - Do not copy source code, artwork, icon libraries, names, or other protected assets from third-party Unity packages.
 
+## Visual References
+
+Development-only references live in `Documentation/ProjectToolkit/VisualReferences/`, outside the Unity package. Read its `README.md` before using them.
+
+- A spec must name every image relevant to it and state which visual or interaction qualities may inform the implementation.
+- Images are supporting evidence, not additional requirements and not permission to implement visible features outside the active spec.
+- The written spec wins whenever a screenshot is ambiguous or shows functionality outside scope.
+- Third-party branding, artwork, icons, palette values, text, and exact visual composition must not be copied.
+- Prompts should load only the images linked by the active spec, not the complete reference library.
+
 ## Roadmap
 
 | Spec | Feature | Depends on | Status |
 |---|---|---|---|
 | 001 | Foundation | — | DONE |
 | 002 | Folder metadata | 001 | DONE |
-| 003 | Manual folder colors | 002 | PLANNED |
+| 003 | Manual folder colors | 002 | IN PROGRESS |
 | 004 | Manual folder icons | 002 | PLANNED |
 | 005 | Project window visuals | 001 | PLANNED |
 | 006 | Automatic folder icons | 002, 004 | PLANNED |

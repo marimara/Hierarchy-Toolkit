@@ -12,4 +12,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ead7274200a0e4a48a7ef3fa3dda4519, type: 3}
   m_Name: ProjectToolkitFolderMetadata
   m_EditorClassIdentifier: Meganeura.ProjectToolkit.Editor::Meganeura.ProjectToolkit.ProjectFolderMetadataStore
-  records: []
+  records:
+  - folderGuid: 9096883f59004bc4fa08e19e8dbcea82
+    hasColorOverride: 1
+    colorOverride: {r: 0.25, g: 0.58, b: 0.82, a: 1}
+    iconOverride: 0
+    customIconGuid: 
+  - folderGuid: 18a7c6f4554be2c4b9488cdd8915a17d
+    hasColorOverride: 1
+    colorOverride: {r: 1, g: 0, b: 0.13411868, a: 1}
+    iconOverride: 0
+    customIconGuid: 

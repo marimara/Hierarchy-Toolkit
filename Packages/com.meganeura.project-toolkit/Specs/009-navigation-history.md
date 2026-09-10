@@ -30,6 +30,14 @@ Folder navigation records a bounded history. Back and Forward restore prior vali
 - Controls accurately reflect availability.
 - History survives domain reload; Editor-restart persistence is configurable or documented by the implementation.
 
+## Visual References
+
+- `Documentation/ProjectToolkit/VisualReferences/vFolders2/01-navigation-bar.png`
+  - Use for: familiar Back/Forward placement, compact disabled states, and coexistence with folder bookmarks.
+  - Do not copy: exact controls, toolbar structure, styling, branding, or undocumented navigation semantics.
+
+Browser-style behavior in the written requirements takes precedence over anything inferred from the still image.
+
 ## Out of Scope
 
 - Cross-project history, file-open history, and custom tabs.

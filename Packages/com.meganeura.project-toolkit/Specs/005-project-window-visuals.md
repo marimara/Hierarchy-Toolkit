@@ -30,6 +30,19 @@ Users may independently enable supported hierarchy lines, zebra striping, compac
 - Native interaction continues to work.
 - No visible stale decoration remains on recycled or changed items.
 
+## Visual References
+
+- `Documentation/ProjectToolkit/VisualReferences/vFolders2/04-folder-tree-lines.png`
+  - Use for: subtle parent/child continuity and restrained line contrast.
+- `Documentation/ProjectToolkit/VisualReferences/vFolders2/05-minimal-mode.png`
+  - Use for: understanding which tree decorations can be reduced while labels and disclosure controls remain understandable.
+- `Documentation/ProjectToolkit/VisualReferences/vFolders2/06-zebra-striping.png`
+  - Use for: low-contrast alternating rows that do not compete with selection.
+- `Documentation/ProjectToolkit/VisualReferences/vFolders2/08-background-colors.png`
+  - Use for: readability of a folder group across descendants and graceful color falloff.
+
+Do not copy exact colors, opacity curves, dimensions, branding, or combined appearance. Each visual remains independently enableable, and this spec decides precedence and supported contexts.
+
 ## Out of Scope
 
 - Manual assignments, automatic rules, content minimap, and two-line names.

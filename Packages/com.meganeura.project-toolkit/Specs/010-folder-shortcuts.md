@@ -28,6 +28,17 @@ When the Project Browser has the relevant focus, users can expand or collapse a 
 - Unsupported Unity layouts fail safely.
 - Disabling a shortcut affects only that binding.
 
+## Visual References
+
+- `Documentation/ProjectToolkit/VisualReferences/vFolders2/11-expand-collapse-shortcut.png`
+  - Use for: the hovered-folder target model and visible result of `E`.
+- `Documentation/ProjectToolkit/VisualReferences/vFolders2/12-isolate-folder-shortcut.png`
+  - Use for: the expected isolated branch result of `Shift+E`.
+- `Documentation/ProjectToolkit/VisualReferences/vFolders2/13-collapse-all-shortcut.png`
+  - Use for: the expected collapsed tree result of `Ctrl+Shift+E`.
+
+The screenshots illustrate outcomes only. Focus rules, text-editing safety, key handling, package-folder treatment, and fallback behavior remain governed by this spec.
+
 ## Out of Scope
 
 - Arbitrary key rebinding and custom Project Browser tabs.

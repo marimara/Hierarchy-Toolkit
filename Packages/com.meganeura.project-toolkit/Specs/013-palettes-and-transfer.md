@@ -29,6 +29,17 @@ Users can manage named colors and icons, apply them quickly, and export/import p
 - Cancelled or invalid imports leave current configuration unchanged.
 - No third-party icon artwork is bundled without an appropriate license.
 
+## Visual References
+
+- `Documentation/ProjectToolkit/VisualReferences/vFolders2/10-customize-palette.png`
+  - Use for: discoverable palette editing, grouped enablement, previews, search, and handling a large icon catalog.
+- `Documentation/ProjectToolkit/VisualReferences/vFolders2/02-set-folder-colors.png`
+  - Use for: compact application of frequently used colors.
+- `Documentation/ProjectToolkit/VisualReferences/vFolders2/03-set-folder-icons.png`
+  - Use for: compact application of frequently used icons.
+
+Do not copy the icon library, exact palette, Inspector layout, grouping, branding, or control composition. The reference does not expand import/export behavior beyond this spec.
+
 ## Out of Scope
 
 - Online galleries, asset downloads, automatic cross-project syncing, and theme generation.

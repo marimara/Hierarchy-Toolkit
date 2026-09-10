@@ -31,6 +31,14 @@ A manual icon decorates or replaces the folder's Toolkit-controlled icon area wi
 - List and grid presentations remain readable.
 - Manual icons take precedence over automatic icons.
 
+## Visual References
+
+- `Documentation/ProjectToolkit/VisualReferences/vFolders2/03-set-folder-icons.png`
+  - Use for: legible icon overlays at tree and grid sizes, consistent placement, and quick visual recognition.
+  - Do not copy: included icon artwork, exact picker layout, palette, branding, or the Alt-click gesture unless separately required by this spec.
+
+The reference does not authorize bundling its icon set. Use Unity-provided icons or properly licensed user assets through the mechanisms defined by this spec.
+
 ## Out of Scope
 
 - Automatic icon inference, downloadable icon packs, icon authoring, and import/export.

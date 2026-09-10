@@ -390,6 +390,8 @@ Project Toolkit must account explicitly for supported one-column, two-column, li
 
 If a reliable public integration is unavailable, isolate non-public Unity integration behind a focused adapter with version checks and a safe disabled fallback. Do not spread reflection through feature code or execute it in per-item hot paths.
 
+Project Toolkit development-only visual references live under `Documentation/ProjectToolkit/VisualReferences/`. Read the reference index and only the images linked by the active spec. References inform explicitly named qualities only; they do not override specs, expand scope, or authorize copying third-party artwork, branding, palettes, text, dimensions, or implementation.
+
 ---
 
 ## Logging

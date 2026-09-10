@@ -1,6 +1,6 @@
 # 003 — Manual Folder Colors
 
-Status: PLANNED
+Status: IN PROGRESS
 
 ## Goal
 
@@ -32,6 +32,14 @@ A folder with a manual color is clearly tinted in supported Project window prese
 - Rename and move preserve the color.
 - Selection remains readable in supported views.
 - Rendering performs no metadata scan per repaint.
+
+## Visual References
+
+- `Documentation/ProjectToolkit/VisualReferences/vFolders2/02-set-folder-colors.png`
+  - Use for: immediate folder-color feedback in tree and grid views, compact access to common color choices, and readability of colored folder silhouettes.
+  - Do not copy: exact palette values, popup composition, icons, spacing, branding, or the Alt-click gesture unless separately required by this spec.
+
+The Meganeura implementation must remain visually original. The screenshot does not add icon assignment or palette customization to this spec.
 
 ## Out of Scope
 

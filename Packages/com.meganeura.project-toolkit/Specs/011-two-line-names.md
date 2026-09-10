@@ -28,6 +28,14 @@ When enabled and space permits, long labels may use a second line while preservi
 - Zoom changes and recycled items do not leave stale labels.
 - Disabling restores native presentation immediately.
 
+## Visual References
+
+- `Documentation/ProjectToolkit/VisualReferences/vFolders2/09-two-line-names.png`
+  - Use for: increased useful name visibility, centered two-line labels, and consistent grid rhythm.
+  - Do not copy: exact row height, font metrics, truncation thresholds, asset thumbnails, spacing, or branding.
+
+This reference applies only to supported grid presentations and never overrides native rename behavior.
+
 ## Out of Scope
 
 - Renaming assets, custom fonts, arbitrary row-height redesign, and replacing the grid.

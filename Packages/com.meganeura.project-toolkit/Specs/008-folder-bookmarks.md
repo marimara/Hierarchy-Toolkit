@@ -29,6 +29,14 @@ Bookmarks appear in a compact Project Toolkit navigation surface. Activating one
 - Invalid bookmarks are clearly represented and removable without Console spam.
 - Bookmarks do not create source-control changes for other users.
 
+## Visual References
+
+- `Documentation/ProjectToolkit/VisualReferences/vFolders2/01-navigation-bar.png`
+  - Use for: compact bookmark affordances integrated near Project Browser navigation and recognizable folder labels.
+  - Do not copy: exact toolbar injection, icons, spacing, branding, or history behavior.
+
+This reference does not require a particular toolbar implementation when Unity 6 cannot support it safely.
+
 ## Out of Scope
 
 - Shared bookmark sets, bookmark groups, asset bookmarks, and navigation history.

@@ -29,6 +29,7 @@ namespace Meganeura.ProjectToolkit
             coordinator = new ProjectFeatureCoordinator(
                 new UnityProjectWindowIntegration(),
                 new ProjectItemResolver());
+            coordinator.Register(new ManualFolderColorFeature(ProjectFolderMetadataService.Repository));
 
             AssemblyReloadEvents.beforeAssemblyReload += Shutdown;
             EditorApplication.quitting += Shutdown;

@@ -12,6 +12,7 @@ namespace Meganeura.ProjectToolkit
         private readonly ProjectFolderMetadataStore store;
         private readonly Func<string, string> guidToAssetPath;
         private readonly Func<string, bool> isValidFolder;
+        private readonly Func<string, bool> isOpenForEdit;
         private readonly Action<ProjectFolderMetadataStore, string> recordUndo;
         private readonly Action<ProjectFolderMetadataStore> persist;
         private bool isDisposed;
@@ -26,7 +27,8 @@ namespace Meganeura.ProjectToolkit
                 {
                     EditorUtility.SetDirty(target);
                     AssetDatabase.SaveAssetIfDirty(target);
-                })
+                },
+                path => AssetDatabase.IsOpenForEdit(path, StatusQueryOptions.UseCachedIfPossible))
         {
         }
 
@@ -35,13 +37,15 @@ namespace Meganeura.ProjectToolkit
             Func<string, string> guidToAssetPath,
             Func<string, bool> isValidFolder,
             Action<ProjectFolderMetadataStore, string> recordUndo,
-            Action<ProjectFolderMetadataStore> persist)
+            Action<ProjectFolderMetadataStore> persist,
+            Func<string, bool> isOpenForEdit = null)
         {
             this.store = store != null ? store : throw new ArgumentNullException(nameof(store));
             this.guidToAssetPath = guidToAssetPath ?? throw new ArgumentNullException(nameof(guidToAssetPath));
             this.isValidFolder = isValidFolder ?? throw new ArgumentNullException(nameof(isValidFolder));
             this.recordUndo = recordUndo ?? throw new ArgumentNullException(nameof(recordUndo));
             this.persist = persist ?? throw new ArgumentNullException(nameof(persist));
+            this.isOpenForEdit = isOpenForEdit ?? (_ => true);
 
             store.Changed += OnStoreChanged;
             EditorApplication.projectChanged += OnProjectChanged;
@@ -66,38 +70,97 @@ namespace Meganeura.ProjectToolkit
 
         internal bool TrySetColor(string folderGuid, Color color)
         {
-            if (!CanEditFolder(folderGuid))
-            {
-                return false;
-            }
-
-            FolderMetadataRecord existing = store.Find(folderGuid);
-            if (existing != null && existing.HasColorOverride && existing.ColorOverride == color)
-            {
-                return true;
-            }
-
-            BeginChange("Set Project Toolkit Folder Color");
-            FolderMetadataRecord record = store.GetOrCreate(folderGuid);
-            record.HasColorOverride = true;
-            record.ColorOverride = color;
-            CompleteChange();
-            return true;
+            return TrySetColors(new[] { folderGuid }, color);
         }
 
         internal bool TryClearColor(string folderGuid)
         {
-            FolderMetadataRecord record = store.Find(folderGuid);
-            if (record == null || !record.HasColorOverride || !CanEditFolder(folderGuid))
+            return TryClearColors(new[] { folderGuid });
+        }
+
+        internal bool TrySetColors(IReadOnlyList<string> folderGuids, Color color)
+        {
+            if (folderGuids == null)
             {
                 return false;
             }
 
-            BeginChange("Clear Project Toolkit Folder Color");
-            record.HasColorOverride = false;
-            RemoveIfEmpty(record);
-            CompleteChange();
-            return true;
+            bool hasEligibleFolder = false;
+            bool hasChanges = false;
+            HashSet<string> visited = new HashSet<string>(StringComparer.Ordinal);
+            for (int index = 0; index < folderGuids.Count; index++)
+            {
+                string folderGuid = folderGuids[index];
+                if (!visited.Add(folderGuid) || !CanEditFolder(folderGuid))
+                {
+                    continue;
+                }
+
+                hasEligibleFolder = true;
+                FolderMetadataRecord existing = store.Find(folderGuid);
+                if (existing != null && existing.HasColorOverride && existing.ColorOverride == color)
+                {
+                    continue;
+                }
+
+                if (!hasChanges)
+                {
+                    BeginChange("Set Project Toolkit Folder Color");
+                    hasChanges = true;
+                }
+
+                FolderMetadataRecord record = existing ?? store.GetOrCreate(folderGuid);
+                record.HasColorOverride = true;
+                record.ColorOverride = color;
+            }
+
+            if (hasChanges)
+            {
+                CompleteChange();
+            }
+
+            return hasEligibleFolder;
+        }
+
+        internal bool TryClearColors(IReadOnlyList<string> folderGuids)
+        {
+            if (folderGuids == null)
+            {
+                return false;
+            }
+
+            bool hasChanges = false;
+            HashSet<string> visited = new HashSet<string>(StringComparer.Ordinal);
+            for (int index = 0; index < folderGuids.Count; index++)
+            {
+                string folderGuid = folderGuids[index];
+                if (!visited.Add(folderGuid))
+                {
+                    continue;
+                }
+
+                FolderMetadataRecord record = store.Find(folderGuid);
+                if (record == null || !record.HasColorOverride || !CanEditFolder(folderGuid))
+                {
+                    continue;
+                }
+
+                if (!hasChanges)
+                {
+                    BeginChange("Clear Project Toolkit Folder Color");
+                    hasChanges = true;
+                }
+
+                record.HasColorOverride = false;
+                RemoveIfEmpty(record);
+            }
+
+            if (hasChanges)
+            {
+                CompleteChange();
+            }
+
+            return hasChanges;
         }
 
         internal bool TrySetIcon(string folderGuid, FolderIconOverride iconOverride, string customIconGuid = null)
@@ -194,7 +257,7 @@ namespace Meganeura.ProjectToolkit
             readModel.Clear();
         }
 
-        private bool CanEditFolder(string folderGuid)
+        internal bool CanEditFolder(string folderGuid)
         {
             if (string.IsNullOrEmpty(folderGuid))
             {
@@ -205,7 +268,8 @@ namespace Meganeura.ProjectToolkit
             return !string.IsNullOrEmpty(path)
                 && (string.Equals(path, "Assets", StringComparison.Ordinal)
                     || path.StartsWith("Assets/", StringComparison.Ordinal))
-                && isValidFolder(path);
+                && isValidFolder(path)
+                && isOpenForEdit(path);
         }
 
         private bool IsPortableAssetGuid(string assetGuid)
